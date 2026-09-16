@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Settings, User, Bell, Shield, Globe, Database, Leaf } from 'lucide-react';
+import { Settings, User, Bell, Shield, Globe, Database, Leaf, Camera, Image } from 'lucide-react';
 
 export default function SettingsPage() {
-  const { user } = useApp();
+  const { user, updateUserProfile, companyLogo, setCompanyLogo } = useApp();
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('La taille du logo ne doit pas dépasser 2 Mo');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCompanyLogo(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -49,6 +65,56 @@ export default function SettingsPage() {
               <Leaf className="w-5 h-5 text-[#2D5016]" />
               <h2 className="text-lg font-semibold text-gray-800">Informations de l'entreprise</h2>
             </div>
+
+            {/* Logo de l'entreprise */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <label className="block text-sm font-medium text-gray-700 mb-3">Logo de l'entreprise</label>
+              <div className="flex items-center gap-4">
+                <div className="relative group">
+                  <div className="w-20 h-20 bg-white rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                    {companyLogo ? (
+                      <img src={companyLogo} alt="Logo" className="w-full h-full object-contain" />
+                    ) : (
+                      <Leaf className="w-8 h-8 text-gray-300" />
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#E67E22] hover:bg-[#D35400] rounded-full flex items-center justify-center text-white shadow-md transition-colors"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div>
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    className="px-3 py-1.5 bg-[#2D5016] hover:bg-[#3D6B1E] text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5"
+                  >
+                    <Image className="w-3.5 h-3.5" /> Choisir un logo
+                  </button>
+                  <p className="text-xs text-gray-500 mt-1">PNG, JPG ou SVG • Max 2 Mo</p>
+                  {companyLogo && (
+                    <button
+                      type="button"
+                      onClick={() => setCompanyLogo('')}
+                      className="text-xs text-red-600 hover:underline mt-1"
+                    >
+                      Supprimer le logo
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nom de l'entreprise</label>

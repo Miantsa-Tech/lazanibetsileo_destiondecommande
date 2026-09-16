@@ -4,8 +4,11 @@ import { useApp } from '../context/AppContext';
 import {
   LayoutDashboard, Users, Package, ShoppingCart, FileText,
   CreditCard, Truck, BarChart3, Settings, LogOut, Menu, X,
-  ChevronDown, Leaf
+  ChevronDown, Leaf, User
 } from 'lucide-react';
+import NotificationsDropdown from './NotificationsDropdown';
+import ProfileModal from './ProfileModal';
+import LogoUpload from './LogoUpload';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -26,6 +29,7 @@ const navItems = [
 export default function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const { user, logout } = useApp();
   const navigate = useNavigate();
 
@@ -51,15 +55,7 @@ export default function Layout({ children }: LayoutProps) {
       `}>
         {/* Logo */}
         <div className="p-5 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-              <Leaf className="w-6 h-6 text-green-300" />
-            </div>
-            <div>
-              <h1 className="font-bold text-lg leading-tight">Lazan'iBetsileo</h1>
-              <p className="text-xs text-green-300">Gestion de Commandes</p>
-            </div>
-          </div>
+          <LogoUpload />
         </div>
 
         {/* Navigation */}
@@ -114,7 +110,7 @@ export default function Layout({ children }: LayoutProps) {
             </button>
             <div className="hidden sm:block">
               <h2 className="text-lg font-semibold text-gray-800">
-                Bienvenue, {user?.prenom} 👋
+                Bienvenue, {user?.prenom}
               </h2>
               <p className="text-xs text-gray-500">
                 {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -124,12 +120,7 @@ export default function Layout({ children }: LayoutProps) {
 
           <div className="flex items-center gap-2">
             {/* Notifications */}
-            <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+            <NotificationsDropdown />
 
             {/* User menu */}
             <div className="relative">
@@ -137,9 +128,13 @@ export default function Layout({ children }: LayoutProps) {
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <div className="w-8 h-8 bg-[#2D5016] rounded-full flex items-center justify-center text-white text-xs font-bold">
-                  {user?.prenom?.[0]}{user?.nom?.[0]}
-                </div>
+                {user?.photo ? (
+                  <img src={user.photo} alt="Profil" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <div className="w-8 h-8 bg-[#2D5016] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    {user?.prenom?.[0]}{user?.nom?.[0]}
+                  </div>
+                )}
                 <ChevronDown className="w-4 h-4 text-gray-500 hidden sm:block" />
               </button>
 
@@ -149,6 +144,12 @@ export default function Layout({ children }: LayoutProps) {
                     <p className="text-sm font-medium text-gray-800">{user?.prenom} {user?.nom}</p>
                     <p className="text-xs text-gray-500">{user?.email}</p>
                   </div>
+                  <button
+                    onClick={() => { setUserMenuOpen(false); setProfileModalOpen(true); }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" /> Mon profil
+                  </button>
                   <button
                     onClick={() => { setUserMenuOpen(false); navigate('/parametres'); }}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
@@ -172,6 +173,9 @@ export default function Layout({ children }: LayoutProps) {
           {children}
         </main>
       </div>
+
+      {/* Profile Modal */}
+      <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
     </div>
   );
 }

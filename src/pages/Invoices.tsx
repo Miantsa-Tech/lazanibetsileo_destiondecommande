@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatMontant, formatDate, getStatutPaiementLabel, getStatutPaiementClass } from '../utils/format';
 import { Eye, X, FileText, Download, Printer } from 'lucide-react';
+import { generateInvoicePDF, printInvoice } from '../utils/invoiceUtils';
 
 export default function Invoices() {
-  const { factures, commandes } = useApp();
+  const { factures, commandes, companyLogo } = useApp();
   const [search, setSearch] = useState('');
   const [filterStatut, setFilterStatut] = useState('');
   const [showDetail, setShowDetail] = useState<string | null>(null);
@@ -103,10 +104,24 @@ export default function Invoices() {
                       <button onClick={() => setShowDetail(facture.id)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors" title="Voir">
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-green-50 text-green-600 transition-colors" title="Télécharger PDF">
+                      <button
+                        onClick={() => {
+                          const cmd = commandes.find(c => c.id === facture.commandeId);
+                          generateInvoicePDF(facture, cmd, companyLogo);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-green-50 text-green-600 transition-colors"
+                        title="Télécharger PDF"
+                      >
                         <Download className="w-4 h-4" />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors" title="Imprimer">
+                      <button
+                        onClick={() => {
+                          const cmd = commandes.find(c => c.id === facture.commandeId);
+                          printInvoice(facture, cmd, companyLogo);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
+                        title="Imprimer"
+                      >
                         <Printer className="w-4 h-4" />
                       </button>
                     </div>

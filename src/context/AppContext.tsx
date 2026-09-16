@@ -14,6 +14,9 @@ interface User {
   prenom: string;
   email: string;
   role: 'admin' | 'gestionnaire' | 'commercial' | 'comptable';
+  photo?: string; // URL de la photo de profil (base64 ou URL)
+  telephone?: string;
+  adresse?: string;
 }
 
 interface AppContextType {
@@ -45,6 +48,11 @@ interface AppContextType {
   updateReglement: (reglement: Reglement) => void;
   addLivraison: (livraison: Livraison) => void;
   updateLivraison: (livraison: Livraison) => void;
+
+  // Profil et logo
+  updateUserProfile: (updates: Partial<User>) => void;
+  companyLogo: string;
+  setCompanyLogo: (logo: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -57,6 +65,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [factures, setFactures] = useState<Facture[]>(initialFactures);
   const [reglements, setReglements] = useState<Reglement[]>(initialReglements);
   const [livraisons, setLivraisons] = useState<Livraison[]>(initialLivraisons);
+  const [companyLogo, setCompanyLogo] = useState<string>('');
 
   const login = (email: string, _password: string): boolean => {
     // Simulation d'authentification
@@ -101,6 +110,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addLivraison = (livraison: Livraison) => setLivraisons(prev => [...prev, livraison]);
   const updateLivraison = (livraison: Livraison) => setLivraisons(prev => prev.map(l => l.id === livraison.id ? livraison : l));
 
+  // Profil utilisateur
+  const updateUserProfile = (updates: Partial<User>) => {
+    setUser(prev => prev ? { ...prev, ...updates } : null);
+  };
+
   return (
     <AppContext.Provider value={{
       user,
@@ -126,6 +140,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateReglement,
       addLivraison,
       updateLivraison,
+      updateUserProfile,
+      companyLogo,
+      setCompanyLogo,
     }}>
       {children}
     </AppContext.Provider>
