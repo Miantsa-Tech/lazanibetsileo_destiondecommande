@@ -45,7 +45,7 @@ export default function Orders() {
     if (existing) {
       setLignes(lignes.map(l => l.produitId === produitId ? { ...l, quantite: l.quantite + 1, total: (l.quantite + 1) * l.prixUnitaire } : l));
     } else {
-      setLignes([...lignes, { produitId, nomProduit: produit.nom, quantite: 1, prixUnitaire: produit.prixUnitaire, total: produit.prixUnitaire }]);
+      setLignes([...lignes, { produitId, nomProduit: produit.nom, quantite: 1, prixUnitaire: produit.prixUnitaire, total: produit.prixUnitaire, unite: produit.unite }]);
     }
     setShowProduitSelect(false);
   };
@@ -226,7 +226,8 @@ export default function Orders() {
                       <thead className="bg-gray-50">
                         <tr>
                           <th className="text-left px-3 py-2 font-medium text-gray-600">Produit</th>
-                          <th className="text-center px-3 py-2 font-medium text-gray-600 w-24">Qté</th>
+                          <th className="text-center px-3 py-2 font-medium text-gray-600 w-20">Qté</th>
+                          <th className="text-center px-3 py-2 font-medium text-gray-600 w-28">Unité</th>
                           <th className="text-right px-3 py-2 font-medium text-gray-600">Total</th>
                         </tr>
                       </thead>
@@ -236,6 +237,20 @@ export default function Orders() {
                             <td className="px-3 py-2 text-gray-800">{ligne.nomProduit}</td>
                             <td className="px-3 py-2 text-center">
                               <input type="number" value={ligne.quantite} onChange={(e) => updateQuantite(index, Number(e.target.value))} className="w-16 px-2 py-1 border border-gray-200 rounded text-center text-sm" min="1" />
+                            </td>
+                            <td className="px-3 py-2 text-center">
+                              <select 
+                                value={ligne.unite} 
+                                onChange={(e) => {
+                                  const newUnite = e.target.value as 'L' | 'CL' | 'bouteille';
+                                  setLignes(lignes.map((l, i) => i === index ? { ...l, unite: newUnite } : l));
+                                }}
+                                className="px-2 py-1 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-[#2D5016] outline-none"
+                              >
+                                <option value="bouteille">Bouteille</option>
+                                <option value="L">Litre (L)</option>
+                                <option value="CL">Centilitre (CL)</option>
+                              </select>
                             </td>
                             <td className="px-3 py-2 text-right font-medium text-gray-800">{formatMontant(ligne.total)}</td>
                           </tr>
@@ -299,6 +314,7 @@ export default function Orders() {
                     <tr>
                       <th className="text-left px-3 py-2 font-medium text-gray-600">Produit</th>
                       <th className="text-center px-3 py-2 font-medium text-gray-600">Qté</th>
+                      <th className="text-center px-3 py-2 font-medium text-gray-600">Unité</th>
                       <th className="text-right px-3 py-2 font-medium text-gray-600">P.U.</th>
                       <th className="text-right px-3 py-2 font-medium text-gray-600">Total</th>
                     </tr>
@@ -308,6 +324,11 @@ export default function Orders() {
                       <tr key={index} className="border-t border-gray-50">
                         <td className="px-3 py-2 text-gray-800">{ligne.nomProduit}</td>
                         <td className="px-3 py-2 text-center text-gray-600">{ligne.quantite}</td>
+                        <td className="px-3 py-2 text-center text-gray-600">
+                          <span className="inline-block px-2 py-0.5 bg-gray-100 rounded text-xs font-medium">
+                            {ligne.unite === 'bouteille' ? 'Bouteille' : ligne.unite}
+                          </span>
+                        </td>
                         <td className="px-3 py-2 text-right text-gray-600">{formatMontant(ligne.prixUnitaire)}</td>
                         <td className="px-3 py-2 text-right font-medium text-gray-800">{formatMontant(ligne.total)}</td>
                       </tr>

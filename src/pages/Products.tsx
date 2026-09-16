@@ -13,7 +13,7 @@ export default function Products() {
   const [showModal, setShowModal] = useState(false);
   const [showDetail, setShowDetail] = useState<Produit | null>(null);
   const [editingProduit, setEditingProduit] = useState<Produit | null>(null);
-  const [form, setForm] = useState({ nom: '', description: '', prixUnitaire: 0, stock: 0 });
+  const [form, setForm] = useState({ nom: '', description: '', prixUnitaire: 0, stock: 0, unite: 'bouteille' as 'L' | 'CL' | 'bouteille', contenance: 75 });
   const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; produit: Produit | null }>({ isOpen: false, produit: null });
 
   const filteredProduits = produits.filter(p => {
@@ -21,13 +21,13 @@ export default function Products() {
   });
 
   const openCreate = () => {
-    setForm({ nom: '', description: '', prixUnitaire: 0, stock: 0 });
+    setForm({ nom: '', description: '', prixUnitaire: 0, stock: 0, unite: 'bouteille', contenance: 75 });
     setEditingProduit(null);
     setShowModal(true);
   };
 
   const openEdit = (produit: Produit) => {
-    setForm({ nom: produit.nom, description: produit.description, prixUnitaire: produit.prixUnitaire, stock: produit.stock });
+    setForm({ nom: produit.nom, description: produit.description, prixUnitaire: produit.prixUnitaire, stock: produit.stock, unite: produit.unite, contenance: produit.contenance || 75 });
     setEditingProduit(produit);
     setShowModal(true);
   };
@@ -101,13 +101,17 @@ export default function Products() {
             <div className="p-4">
               <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">{produit.nom}</h3>
               <p className="text-xs text-gray-500 mt-1 line-clamp-2">{produit.description}</p>
+              {produit.contenance && (
+                <p className="text-xs text-[#E67E22] font-medium mt-1">{produit.contenance} cl</p>
+              )}
               <div className="mt-3 flex items-center justify-between">
                 <div>
                   <p className="text-lg font-bold text-[#2D5016]">{formatMontant(produit.prixUnitaire)}</p>
+                  <p className="text-xs text-gray-400">par {produit.unite === 'bouteille' ? 'bouteille' : produit.unite}</p>
                 </div>
                 <div className="text-right">
                   <p className={`text-sm font-semibold ${produit.stock <= STOCK_ALERT_THRESHOLD ? 'text-red-600' : 'text-gray-700'}`}>
-                    {produit.stock} unités
+                    {produit.stock} {produit.unite === 'bouteille' ? 'bouteilles' : produit.unite}
                   </p>
                   <p className="text-xs text-gray-400">en stock</p>
                 </div>
@@ -166,6 +170,21 @@ export default function Products() {
                   <input type="number" value={form.stock} onChange={(e) => setForm({...form, stock: Number(e.target.value)})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" min="0" required />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Unité de vente *</label>
+                  <select value={form.unite} onChange={(e) => setForm({...form, unite: e.target.value as 'L' | 'CL' | 'bouteille'})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none">
+                    <option value="bouteille">Bouteille</option>
+                    <option value="L">Litre (L)</option>
+                    <option value="CL">Centilitre (CL)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Contenance (CL)</label>
+                  <input type="number" value={form.contenance} onChange={(e) => setForm({...form, contenance: Number(e.target.value)})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" min="0" placeholder="75" />
+                  <p className="text-xs text-gray-400 mt-1">Ex: 75 pour 75cl, 70 pour 70cl</p>
+                </div>
+              </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                   Annuler
@@ -201,12 +220,19 @@ export default function Products() {
                 <div className="bg-green-50 rounded-lg p-3">
                   <p className="text-xs text-green-600">Prix unitaire</p>
                   <p className="text-lg font-bold text-green-800">{formatMontant(showDetail.prixUnitaire)}</p>
+                  <p className="text-xs text-green-600 mt-1">par {showDetail.unite === 'bouteille' ? 'bouteille' : showDetail.unite}</p>
                 </div>
                 <div className={`rounded-lg p-3 ${showDetail.stock <= STOCK_ALERT_THRESHOLD ? 'bg-red-50' : 'bg-blue-50'}`}>
                   <p className={`text-xs ${showDetail.stock <= STOCK_ALERT_THRESHOLD ? 'text-red-600' : 'text-blue-600'}`}>Stock actuel</p>
-                  <p className={`text-lg font-bold ${showDetail.stock <= STOCK_ALERT_THRESHOLD ? 'text-red-800' : 'text-blue-800'}`}>{showDetail.stock} unités</p>
+                  <p className={`text-lg font-bold ${showDetail.stock <= STOCK_ALERT_THRESHOLD ? 'text-red-800' : 'text-blue-800'}`}>{showDetail.stock} {showDetail.unite === 'bouteille' ? 'bouteilles' : showDetail.unite}</p>
                 </div>
               </div>
+              {showDetail.contenance && (
+                <div className="bg-orange-50 rounded-lg p-3">
+                  <p className="text-xs text-orange-600">Contenance</p>
+                  <p className="text-lg font-bold text-orange-800">{showDetail.contenance} cl</p>
+                </div>
+              )}
               {showDetail.stock <= STOCK_ALERT_THRESHOLD && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-red-500" />

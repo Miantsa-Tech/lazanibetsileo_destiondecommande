@@ -27,6 +27,8 @@ export interface Produit {
   description: string;
   prixUnitaire: number;
   stock: number;
+  unite: 'L' | 'CL' | 'bouteille';
+  contenance?: number; // en CL pour les bouteilles
 }
 
 export interface LigneCommande {
@@ -35,6 +37,7 @@ export interface LigneCommande {
   quantite: number;
   prixUnitaire: number;
   total: number;
+  unite: 'L' | 'CL' | 'bouteille';
 }
 
 export interface Commande {
@@ -117,34 +120,40 @@ export const clients: Client[] = [
   { id: 'cli10', nom: 'Betsileo Trading', prenom: '', email: 'info@betsileotrading.mg', telephone: '+261 20 75 111 22', adresse: 'Centre-ville', ville: 'Fianarantsoa', type: 'entreprise', dateCreation: '2024-01-05', chiffreAffaires: 28400000, actif: true },
 ];
 
-// Produits réalistes (conforme au schéma SQL : id, nom_produit, prix_unitaire, description, stock)
+// Produits - Vins et Spiritueux (conforme au schéma SQL : id, nom_produit, prix_unitaire, description, stock)
 export const produits: Produit[] = [
-  { id: 'prod1', nom: 'Riz de Vakinankaratra (50kg)', description: 'Riz blanc premium de la région Vakinankaratra', prixUnitaire: 180000, stock: 45 },
-  { id: 'prod2', nom: 'Vanille Bourbon (1kg)', description: 'Vanille de première qualité, grade A', prixUnitaire: 1500000, stock: 12 },
-  { id: 'prod3', nom: 'Lamba Hoany Traditionnel', description: 'Tissu traditionnel malgache tissé main', prixUnitaire: 85000, stock: 30 },
-  { id: 'prod4', nom: 'Girofle Séché (1kg)', description: 'Clous de girofle de Sainte-Marie', prixUnitaire: 45000, stock: 60 },
-  { id: 'prod5', nom: 'Panier Tressé Betsileo', description: 'Panier artisanal en raphia, fait main', prixUnitaire: 35000, stock: 25 },
-  { id: 'prod6', nom: 'Café Vert de Madagascar (5kg)', description: 'Grains de café arabica de la région Vakinankaratra', prixUnitaire: 125000, stock: 20 },
-  { id: 'prod7', nom: 'Huile Essentielle Ravintsara (100ml)', description: 'Huile essentielle pure de ravintsara', prixUnitaire: 55000, stock: 40 },
-  { id: 'prod8', nom: 'Savon Artisanal au Curcuma', description: 'Savon naturel fait main au curcuma malgache', prixUnitaire: 12000, stock: 100 },
-  { id: 'prod9', nom: 'Rhum Arrangé Vanille (70cl)', description: 'Rhum arrangé à la vanille de Madagascar', prixUnitaire: 75000, stock: 35 },
-  { id: 'prod10', nom: 'Poivre Noir de Madagascar (500g)', description: 'Poivre noir premium, récolte sélectionnée', prixUnitaire: 65000, stock: 3 },
-  { id: 'prod11', nom: 'Nappe Brodée Antemoro', description: 'Nappe brodée sur papier Antemoro traditionnel', prixUnitaire: 120000, stock: 15 },
-  { id: 'prod12', nom: 'Miel de la Forêt (1kg)', description: 'Miel naturel de la forêt de Betsileo', prixUnitaire: 48000, stock: 28 },
+  // Vins tranquilles ordinaires
+  { id: 'prod1', nom: 'Vin Rouge', description: 'Vin rouge tranquille ordinaire - Bouteille 75cl', prixUnitaire: 25000, stock: 150, unite: 'bouteille', contenance: 75 },
+  { id: 'prod2', nom: 'Vin Blanc', description: 'Vin blanc tranquille ordinaire - Bouteille 75cl', prixUnitaire: 25000, stock: 120, unite: 'bouteille', contenance: 75 },
+  { id: 'prod3', nom: 'Vin Rosé', description: 'Vin rosé tranquille ordinaire - Bouteille 75cl', prixUnitaire: 27000, stock: 80, unite: 'bouteille', contenance: 75 },
+  { id: 'prod4', nom: 'Vin Gris', description: 'Vin gris tranquille ordinaire - Bouteille 75cl', prixUnitaire: 26000, stock: 60, unite: 'bouteille', contenance: 75 },
+  
+  // Vins tranquilles aromatisés
+  { id: 'prod5', nom: 'Vin Blanc Moelleux', description: 'Vin blanc moelleux aromatisé - Bouteille 75cl', prixUnitaire: 35000, stock: 45, unite: 'bouteille', contenance: 75 },
+  { id: 'prod6', nom: 'Vin Apéritif', description: 'Vin apéritif aromatisé - Bouteille 75cl', prixUnitaire: 32000, stock: 55, unite: 'bouteille', contenance: 75 },
+  
+  // Vins effervescents
+  { id: 'prod7', nom: 'Vin Mousseux', description: 'Vin mousseux effervescent - Bouteille 75cl', prixUnitaire: 45000, stock: 40, unite: 'bouteille', contenance: 75 },
+  { id: 'prod8', nom: 'Vin Blanc Spécial', description: 'Vin blanc spécial effervescent - Bouteille 75cl', prixUnitaire: 48000, stock: 35, unite: 'bouteille', contenance: 75 },
+  
+  // Spiritueux
+  { id: 'prod9', nom: 'Eau de Vie de Vin', description: 'Eau de vie de vin - Bouteille 70cl', prixUnitaire: 65000, stock: 30, unite: 'bouteille', contenance: 70 },
+  { id: 'prod10', nom: 'Eau de Vie à la Mandarine', description: 'Eau de vie aromatisée à la mandarine - Bouteille 70cl', prixUnitaire: 72000, stock: 25, unite: 'bouteille', contenance: 70 },
+  { id: 'prod11', nom: 'Liqueur à l\'Orange', description: 'Liqueur aromatisée à l\'orange - Bouteille 70cl', prixUnitaire: 58000, stock: 38, unite: 'bouteille', contenance: 70 },
 ];
 
 // Commandes
 export const commandes: Commande[] = [
-  { id: 'cmd1', numero: 'CMD-2024-001', clientId: 'cli2', nomClient: 'Rasoa Marie', lignes: [{ produitId: 'prod2', nomProduit: 'Vanille Bourbon (1kg)', quantite: 2, prixUnitaire: 1500000, total: 3000000 }, { produitId: 'prod4', nomProduit: 'Girofle Séché (1kg)', quantite: 5, prixUnitaire: 45000, total: 225000 }], montantTotal: 3225000, statut: 'livree', dateCreation: '2024-05-10', dateModification: '2024-05-15', notes: 'Client VIP - livraison prioritaire' },
-  { id: 'cmd2', numero: 'CMD-2024-002', clientId: 'cli3', nomClient: 'Rabe & Fils SARL', lignes: [{ produitId: 'prod1', nomProduit: 'Riz de Vakinankaratra (50kg)', quantite: 20, prixUnitaire: 165000, total: 3300000 }, { produitId: 'prod6', nomProduit: 'Café Vert de Madagascar (5kg)', quantite: 10, prixUnitaire: 110000, total: 1100000 }], montantTotal: 4400000, statut: 'validee', dateCreation: '2024-06-01', dateModification: '2024-06-02', notes: 'Commande en gros' },
-  { id: 'cmd3', numero: 'CMD-2024-003', clientId: 'cli4', nomClient: 'Randrianarisoa Pierre', lignes: [{ produitId: 'prod3', nomProduit: 'Lamba Hoany Traditionnel', quantite: 15, prixUnitaire: 70000, total: 1050000 }, { produitId: 'prod5', nomProduit: 'Panier Tressé Betsileo', quantite: 20, prixUnitaire: 28000, total: 560000 }], montantTotal: 1610000, statut: 'en_cours', dateCreation: '2024-06-10', dateModification: '2024-06-10', notes: '' },
-  { id: 'cmd4', numero: 'CMD-2024-004', clientId: 'cli1', nomClient: 'Rakoto Jean', lignes: [{ produitId: 'prod7', nomProduit: 'Huile Essentielle Ravintsara (100ml)', quantite: 3, prixUnitaire: 55000, total: 165000 }, { produitId: 'prod8', nomProduit: 'Savon Artisanal au Curcuma', quantite: 10, prixUnitaire: 12000, total: 120000 }], montantTotal: 285000, statut: 'livree', dateCreation: '2024-06-15', dateModification: '2024-06-20', notes: '' },
-  { id: 'cmd5', numero: 'CMD-2024-005', clientId: 'cli6', nomClient: 'Madagascar Export SA', lignes: [{ produitId: 'prod2', nomProduit: 'Vanille Bourbon (1kg)', quantite: 10, prixUnitaire: 1350000, total: 13500000 }, { produitId: 'prod10', nomProduit: 'Poivre Noir de Madagascar (500g)', quantite: 20, prixUnitaire: 55000, total: 1100000 }], montantTotal: 14600000, statut: 'validee', dateCreation: '2024-07-01', dateModification: '2024-07-02', notes: 'Export international' },
-  { id: 'cmd6', numero: 'CMD-2024-006', clientId: 'cli7', nomClient: 'Ravelomanana Voahangy', lignes: [{ produitId: 'prod9', nomProduit: 'Rhum Arrangé Vanille (70cl)', quantite: 6, prixUnitaire: 75000, total: 450000 }, { produitId: 'prod12', nomProduit: 'Miel de la Forêt (1kg)', quantite: 5, prixUnitaire: 48000, total: 240000 }], montantTotal: 690000, statut: 'en_cours', dateCreation: '2024-07-10', dateModification: '2024-07-10', notes: 'Livraison à Fianarantsoa' },
-  { id: 'cmd7', numero: 'CMD-2024-007', clientId: 'cli8', nomClient: 'Ratsirarson Bako', lignes: [{ produitId: 'prod1', nomProduit: 'Riz de Vakinankaratra (50kg)', quantite: 50, prixUnitaire: 165000, total: 8250000 }, { produitId: 'prod4', nomProduit: 'Girofle Séché (1kg)', quantite: 30, prixUnitaire: 38000, total: 1140000 }], montantTotal: 9390000, statut: 'validee', dateCreation: '2024-07-15', dateModification: '2024-07-16', notes: 'Grossiste - prix négocié' },
-  { id: 'cmd8', numero: 'CMD-2024-008', clientId: 'cli5', nomClient: 'Andriamihaja Hery', lignes: [{ produitId: 'prod11', nomProduit: 'Nappe Brodée Antemoro', quantite: 2, prixUnitaire: 120000, total: 240000 }], montantTotal: 240000, statut: 'annulee', dateCreation: '2024-07-20', dateModification: '2024-07-22', notes: 'Annulée par le client' },
-  { id: 'cmd9', numero: 'CMD-2024-009', clientId: 'cli10', nomClient: 'Betsileo Trading', lignes: [{ produitId: 'prod3', nomProduit: 'Lamba Hoany Traditionnel', quantite: 30, prixUnitaire: 70000, total: 2100000 }, { produitId: 'prod5', nomProduit: 'Panier Tressé Betsileo', quantite: 50, prixUnitaire: 28000, total: 1400000 }, { produitId: 'prod11', nomProduit: 'Nappe Brodée Antemoro', quantite: 10, prixUnitaire: 100000, total: 1000000 }], montantTotal: 4500000, statut: 'livree', dateCreation: '2024-08-01', dateModification: '2024-08-10', notes: 'Commande artisanat' },
-  { id: 'cmd10', numero: 'CMD-2024-010', clientId: 'cli9', nomClient: 'Razafindrabe Noro', lignes: [{ produitId: 'prod8', nomProduit: 'Savon Artisanal au Curcuma', quantite: 5, prixUnitaire: 12000, total: 60000 }, { produitId: 'prod7', nomProduit: 'Huile Essentielle Ravintsara (100ml)', quantite: 2, prixUnitaire: 55000, total: 110000 }], montantTotal: 170000, statut: 'en_cours', dateCreation: '2024-08-15', dateModification: '2024-08-15', notes: '' },
+  { id: 'cmd1', numero: 'CMD-2024-001', clientId: 'cli2', nomClient: 'Rasoa Marie', lignes: [{ produitId: 'prod1', nomProduit: 'Vin Rouge', quantite: 12, prixUnitaire: 25000, total: 300000, unite: 'bouteille' }, { produitId: 'prod2', nomProduit: 'Vin Blanc', quantite: 6, prixUnitaire: 25000, total: 150000, unite: 'bouteille' }], montantTotal: 450000, statut: 'livree', dateCreation: '2024-05-10', dateModification: '2024-05-15', notes: 'Client VIP - livraison prioritaire' },
+  { id: 'cmd2', numero: 'CMD-2024-002', clientId: 'cli3', nomClient: 'Rabe & Fils SARL', lignes: [{ produitId: 'prod7', nomProduit: 'Vin Mousseux', quantite: 24, prixUnitaire: 45000, total: 1080000, unite: 'bouteille' }, { produitId: 'prod8', nomProduit: 'Vin Blanc Spécial', quantite: 18, prixUnitaire: 48000, total: 864000, unite: 'bouteille' }], montantTotal: 1944000, statut: 'validee', dateCreation: '2024-06-01', dateModification: '2024-06-02', notes: 'Commande pour événement' },
+  { id: 'cmd3', numero: 'CMD-2024-003', clientId: 'cli4', nomClient: 'Randrianarisoa Pierre', lignes: [{ produitId: 'prod9', nomProduit: 'Eau de Vie de Vin', quantite: 10, prixUnitaire: 65000, total: 650000, unite: 'bouteille' }, { produitId: 'prod10', nomProduit: 'Eau de Vie à la Mandarine', quantite: 8, prixUnitaire: 72000, total: 576000, unite: 'bouteille' }], montantTotal: 1226000, statut: 'en_cours', dateCreation: '2024-06-10', dateModification: '2024-06-10', notes: '' },
+  { id: 'cmd4', numero: 'CMD-2024-004', clientId: 'cli1', nomClient: 'Rakoto Jean', lignes: [{ produitId: 'prod3', nomProduit: 'Vin Rosé', quantite: 6, prixUnitaire: 27000, total: 162000, unite: 'bouteille' }, { produitId: 'prod5', nomProduit: 'Vin Blanc Moelleux', quantite: 4, prixUnitaire: 35000, total: 140000, unite: 'bouteille' }], montantTotal: 302000, statut: 'livree', dateCreation: '2024-06-15', dateModification: '2024-06-20', notes: '' },
+  { id: 'cmd5', numero: 'CMD-2024-005', clientId: 'cli6', nomClient: 'Madagascar Export SA', lignes: [{ produitId: 'prod1', nomProduit: 'Vin Rouge', quantite: 100, prixUnitaire: 22000, total: 2200000, unite: 'bouteille' }, { produitId: 'prod2', nomProduit: 'Vin Blanc', quantite: 80, prixUnitaire: 22000, total: 1760000, unite: 'bouteille' }, { produitId: 'prod3', nomProduit: 'Vin Rosé', quantite: 60, prixUnitaire: 24000, total: 1440000, unite: 'bouteille' }], montantTotal: 5400000, statut: 'validee', dateCreation: '2024-07-01', dateModification: '2024-07-02', notes: 'Export international - prix grossiste' },
+  { id: 'cmd6', numero: 'CMD-2024-006', clientId: 'cli7', nomClient: 'Ravelomanana Voahangy', lignes: [{ produitId: 'prod11', nomProduit: 'Liqueur à l\'Orange', quantite: 6, prixUnitaire: 58000, total: 348000, unite: 'bouteille' }, { produitId: 'prod6', nomProduit: 'Vin Apéritif', quantite: 8, prixUnitaire: 32000, total: 256000, unite: 'bouteille' }], montantTotal: 604000, statut: 'en_cours', dateCreation: '2024-07-10', dateModification: '2024-07-10', notes: 'Livraison à Fianarantsoa' },
+  { id: 'cmd7', numero: 'CMD-2024-007', clientId: 'cli8', nomClient: 'Ratsirarson Bako', lignes: [{ produitId: 'prod1', nomProduit: 'Vin Rouge', quantite: 200, prixUnitaire: 20000, total: 4000000, unite: 'bouteille' }, { produitId: 'prod4', nomProduit: 'Vin Gris', quantite: 100, prixUnitaire: 23000, total: 2300000, unite: 'bouteille' }], montantTotal: 6300000, statut: 'validee', dateCreation: '2024-07-15', dateModification: '2024-07-16', notes: 'Grossiste - prix négocié' },
+  { id: 'cmd8', numero: 'CMD-2024-008', clientId: 'cli5', nomClient: 'Andriamihaja Hery', lignes: [{ produitId: 'prod7', nomProduit: 'Vin Mousseux', quantite: 3, prixUnitaire: 45000, total: 135000, unite: 'bouteille' }], montantTotal: 135000, statut: 'annulee', dateCreation: '2024-07-20', dateModification: '2024-07-22', notes: 'Annulée par le client' },
+  { id: 'cmd9', numero: 'CMD-2024-009', clientId: 'cli10', nomClient: 'Betsileo Trading', lignes: [{ produitId: 'prod1', nomProduit: 'Vin Rouge', quantite: 50, prixUnitaire: 22000, total: 1100000, unite: 'bouteille' }, { produitId: 'prod2', nomProduit: 'Vin Blanc', quantite: 40, prixUnitaire: 22000, total: 880000, unite: 'bouteille' }, { produitId: 'prod9', nomProduit: 'Eau de Vie de Vin', quantite: 20, prixUnitaire: 60000, total: 1200000, unite: 'bouteille' }], montantTotal: 3180000, statut: 'livree', dateCreation: '2024-08-01', dateModification: '2024-08-10', notes: 'Commande restaurant' },
+  { id: 'cmd10', numero: 'CMD-2024-010', clientId: 'cli9', nomClient: 'Razafindrabe Noro', lignes: [{ produitId: 'prod5', nomProduit: 'Vin Blanc Moelleux', quantite: 3, prixUnitaire: 35000, total: 105000, unite: 'bouteille' }, { produitId: 'prod11', nomProduit: 'Liqueur à l\'Orange', quantite: 2, prixUnitaire: 58000, total: 116000, unite: 'bouteille' }], montantTotal: 221000, statut: 'en_cours', dateCreation: '2024-08-15', dateModification: '2024-08-15', notes: '' },
 ];
 
 // Factures
@@ -201,9 +210,9 @@ export const topClients = [
 ];
 
 export const topProduits = [
-  { nom: 'Riz de Vakinankaratra', quantite: 120 },
-  { nom: 'Vanille Bourbon', quantite: 25 },
-  { nom: 'Lamba Hoany Traditionnel', quantite: 75 },
-  { nom: 'Girofle Séché', quantite: 65 },
-  { nom: 'Panier Tressé Betsileo', quantite: 90 },
+  { nom: 'Vin Rouge', quantite: 362 },
+  { nom: 'Vin Blanc', quantite: 246 },
+  { nom: 'Vin Mousseux', quantite: 27 },
+  { nom: 'Eau de Vie de Vin', quantite: 30 },
+  { nom: 'Vin Rosé', quantite: 66 },
 ];
