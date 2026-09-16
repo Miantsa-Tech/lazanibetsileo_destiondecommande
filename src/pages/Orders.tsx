@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Commande, LigneCommande } from '../data/mockData';
 import { formatMontant, formatDate, getStatutCommandeLabel, getStatutCommandeClass, generateId } from '../utils/format';
-import { Plus, Search, Eye, Edit2, X, ShoppingCart, ChevronDown } from 'lucide-react';
+import { Plus, Search, Eye, Edit2, Trash2, FileText, X, ShoppingCart, ChevronDown } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function Orders() {
-  const { clients, produits, commandes, addCommande, updateCommande } = useApp();
+  const navigate = useNavigate();
+  const { clients, produits, commandes, addCommande, updateCommande, deleteCommande } = useApp();
   const [search, setSearch] = useState('');
   const [filterStatut, setFilterStatut] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -15,6 +18,7 @@ export default function Orders() {
   const [lignes, setLignes] = useState<LigneCommande[]>([]);
   const [notes, setNotes] = useState('');
   const [showProduitSelect, setShowProduitSelect] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; commande: Commande | null }>({ isOpen: false, commande: null });
 
   const filteredCommandes = commandes.filter(c => {
     const matchSearch = `${c.numero} ${c.nomClient}`.toLowerCase().includes(search.toLowerCase());
@@ -90,6 +94,22 @@ export default function Orders() {
     updateCommande({ ...commande, statut: newStatut, dateModification: new Date().toISOString().split('T')[0] });
   };
 
+  const requestDelete = (commande: Commande) => {
+    setConfirmDelete({ isOpen: true, commande });
+  };
+
+  const confirmDeleteAction = () => {
+    if (confirmDelete.commande) {
+      deleteCommande(confirmDelete.commande.id);
+    }
+    setConfirmDelete({ isOpen: false, commande: null });
+  };
+
+  const handleCommander = (commande: Commande) => {
+    // Naviguer vers la page des factures avec la commande sélectionnée
+    navigate('/factures', { state: { selectedCommandeId: commande.id } });
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
@@ -148,6 +168,12 @@ export default function Orders() {
                   </button>
                   <button onClick={() => openEdit(cmd)} className="p-2 rounded-lg hover:bg-amber-50 text-amber-600 transition-colors" title="Modifier">
                     <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => requestDelete(cmd)} className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors" title="Supprimer">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => handleCommander(cmd)} className="p-2 rounded-lg hover:bg-green-50 text-green-600 transition-colors" title="Commander (Créer une facture)">
+                    <FileText className="w-4 h-4" />
                   </button>
                   {/* Change status dropdown */}
                   <div className="relative group">
@@ -358,6 +384,18 @@ export default function Orders() {
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={confirmDelete.isOpen}
+        title="Supprimer cette commande ?"
+        message={`Êtes-vous sûr de vouloir supprimer la commande "${confirmDelete.commande?.numero}" ? Cette action est irréversible.`}
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        onConfirm={confirmDeleteAction}
+        onCancel={() => setConfirmDelete({ isOpen: false, commande: null })}
+        type="danger"
+      />
     </div>
   );
 }

@@ -43,6 +43,7 @@ interface AppContextType {
   deleteProduit: (id: string) => void;
   addCommande: (commande: Commande) => void;
   updateCommande: (commande: Commande) => void;
+  deleteCommande: (id: string) => void;
   addFacture: (facture: Facture) => void;
   addReglement: (reglement: Reglement) => void;
   updateReglement: (reglement: Reglement) => void;
@@ -98,6 +99,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // CRUD Commandes
   const addCommande = (commande: Commande) => setCommandes(prev => [...prev, commande]);
   const updateCommande = (commande: Commande) => setCommandes(prev => prev.map(c => c.id === commande.id ? commande : c));
+  const deleteCommande = (id: string) => setCommandes(prev => prev.filter(c => c.id !== id));
 
   // CRUD Factures
   const addFacture = (facture: Facture) => setFactures(prev => [...prev, facture]);
@@ -135,6 +137,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       deleteProduit,
       addCommande,
       updateCommande,
+      deleteCommande,
       addFacture,
       addReglement,
       updateReglement,
