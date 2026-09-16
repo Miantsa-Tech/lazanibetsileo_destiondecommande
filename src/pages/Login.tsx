@@ -9,7 +9,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useApp();
+  const { login, companyLogo } = useApp();
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -42,8 +42,12 @@ export default function Login() {
         <div className="bg-white rounded-2xl shadow-2xl p-8 animate-fadeIn">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#2D5016] rounded-2xl mb-4">
-              <Leaf className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#2D5016] rounded-2xl mb-4 overflow-hidden">
+              {companyLogo ? (
+                <img src={companyLogo} alt="Logo Lazan'iBetsileo" className="w-full h-full object-cover" />
+              ) : (
+                <Leaf className="w-10 h-10 text-white" />
+              )}
             </div>
             <h1 className="text-2xl font-bold text-gray-800">Lazan'iBetsileo</h1>
             <p className="text-sm text-gray-500 mt-1">Système de Gestion de Commandes</p>

@@ -29,6 +29,7 @@ export interface Produit {
   stock: number;
   unite: 'L' | 'CL' | 'bouteille';
   contenance?: number; // en CL pour les bouteilles
+  image?: string; // URL ou base64 de l'image du produit
 }
 
 export interface LigneCommande {
