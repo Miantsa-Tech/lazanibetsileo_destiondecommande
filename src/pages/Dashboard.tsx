@@ -37,66 +37,66 @@ export default function Dashboard() {
     <div className="space-y-6 animate-fadeIn">
       {/* Titre */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Tableau de bord</h1>
-        <p className="text-sm text-gray-500 mt-1">Vue d'ensemble de votre activité commerciale</p>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100">Tableau de bord</h1>
+        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Vue d'ensemble de votre activité commerciale</p>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Chiffre d'affaires */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
             </div>
-            <span className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+            <span className="flex items-center text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">
               <ArrowUpRight className="w-3 h-3 mr-0.5" /> +12%
             </span>
           </div>
-          <p className="text-2xl font-bold text-gray-800">{formatMontant(totalCA)}</p>
-          <p className="text-xs text-gray-500 mt-1">Chiffre d'affaires total</p>
+          <p className="text-2xl font-bold text-gray-800 dark:text-slate-100">{formatMontant(totalCA)}</p>
+          <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Chiffre d'affaires total</p>
         </div>
 
         {/* Commandes */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <ShoppingCart className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+              <ShoppingCart className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
-            <span className="flex items-center text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+            <span className="flex items-center text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-full">
               {commandesEnCours} en cours
             </span>
           </div>
-          <p className="text-2xl font-bold text-gray-800">{commandes.length}</p>
-          <p className="text-xs text-gray-500 mt-1">Total commandes</p>
+          <p className="text-2xl font-bold text-gray-800 dark:text-slate-100">{commandes.length}</p>
+          <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Total commandes</p>
         </div>
 
         {/* Clients */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
-            <span className="flex items-center text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
+            <span className="flex items-center text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 px-2 py-1 rounded-full">
               <ArrowUpRight className="w-3 h-3 mr-0.5" /> +3
             </span>
           </div>
-          <p className="text-2xl font-bold text-gray-800">{clients.length}</p>
-          <p className="text-xs text-gray-500 mt-1">Clients actifs</p>
+          <p className="text-2xl font-bold text-gray-800 dark:text-slate-100">{clients.length}</p>
+          <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Clients actifs</p>
         </div>
 
         {/* Impayés */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-red-600" />
+            <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-red-600 dark:text-red-400" />
             </div>
-            <span className="flex items-center text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">
+            <span className="flex items-center text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-full">
               <ArrowDownRight className="w-3 h-3 mr-0.5" /> {facturesImpayees.length} factures
             </span>
           </div>
-          <p className="text-2xl font-bold text-gray-800">{formatMontant(totalImpaye)}</p>
-          <p className="text-xs text-gray-500 mt-1">Montant impayé</p>
+          <p className="text-2xl font-bold text-gray-800 dark:text-slate-100">{formatMontant(totalImpaye)}</p>
+          <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Montant impayé</p>
         </div>
       </div>
 

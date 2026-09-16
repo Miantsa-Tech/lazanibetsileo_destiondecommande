@@ -65,8 +65,8 @@ export default function Clients() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Clients</h1>
-          <p className="text-sm text-gray-500 mt-1">{clients.length} clients enregistrés</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100">Clients</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">{clients.length} clients enregistrés</p>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 bg-[#2D5016] hover:bg-[#3D6B1E] text-white px-4 py-2.5 rounded-lg font-medium transition-colors">
           <Plus className="w-4 h-4" /> Nouveau client

@@ -24,8 +24,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Paramètres</h1>
-        <p className="text-sm text-gray-500 mt-1">Configuration de l'application</p>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100">Paramètres</h1>
+        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Configuration de l'application</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

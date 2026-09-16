@@ -45,8 +45,8 @@ export default function Reports() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Rapports & Statistiques</h1>
-          <p className="text-sm text-gray-500 mt-1">Analyses détaillées de votre activité</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100">Rapports & Statistiques</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Analyses détaillées de votre activité</p>
         </div>
         <div className="flex items-center gap-2">
           <select value={period} onChange={(e) => setPeriod(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none">

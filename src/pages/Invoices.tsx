@@ -26,8 +26,8 @@ export default function Invoices() {
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Factures</h1>
-        <p className="text-sm text-gray-500 mt-1">{factures.length} factures émises</p>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100">Factures</h1>
+        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">{factures.length} factures émises</p>
       </div>
 
       {/* Summary Cards */}
