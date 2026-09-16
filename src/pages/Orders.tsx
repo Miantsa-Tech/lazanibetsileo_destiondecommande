@@ -204,9 +204,6 @@ export default function Orders() {
                   <button onClick={() => requestDelete(cmd)} className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors" title="Supprimer">
                     <Trash2 className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleCommander(cmd)} className="p-2 rounded-lg hover:bg-green-50 text-green-600 transition-colors" title="Commander (Créer une facture)">
-                    <FileText className="w-4 h-4" />
-                  </button>
                   {/* Change status dropdown */}
                   <div className="relative group">
                     <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors" title="Changer statut">
@@ -221,6 +218,17 @@ export default function Orders() {
                     </div>
                   </div>
                 </div>
+                {/* Bouton Commander - Plus visible */}
+                {cmd.statut === 'en_cours' && !factures.find(f => f.commandeId === cmd.id) && (
+                  <button 
+                    onClick={() => handleCommander(cmd)} 
+                    className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
+                    title="Créer une facture pour cette commande"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Commander</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
