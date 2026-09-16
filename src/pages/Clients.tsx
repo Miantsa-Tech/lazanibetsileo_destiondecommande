@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Client } from '../data/mockData';
 import { formatMontant, formatDate, getTypeClientLabel, getTypeClientClass, generateId } from '../utils/format';
 import { Plus, Search, Filter, Edit2, Trash2, Eye, X, UserPlus } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function Clients() {
   const { clients, addClient, updateClient, deleteClient } = useApp();
@@ -12,6 +13,7 @@ export default function Clients() {
   const [showDetail, setShowDetail] = useState<Client | null>(null);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [form, setForm] = useState({ nom: '', prenom: '', email: '', telephone: '', adresse: '', ville: '', type: 'particulier' as Client['type'] });
+  const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; client: Client | null }>({ isOpen: false, client: null });
 
   const filteredClients = clients.filter(c => {
     const matchSearch = `${c.nom} ${c.prenom} ${c.email} ${c.ville}`.toLowerCase().includes(search.toLowerCase());
@@ -47,10 +49,15 @@ export default function Clients() {
     setShowModal(false);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
-      deleteClient(id);
+  const requestDelete = (client: Client) => {
+    setConfirmDelete({ isOpen: true, client });
+  };
+
+  const confirmDeleteAction = () => {
+    if (confirmDelete.client) {
+      deleteClient(confirmDelete.client.id);
     }
+    setConfirmDelete({ isOpen: false, client: null });
   };
 
   return (
@@ -137,7 +144,7 @@ export default function Clients() {
                       <button onClick={() => openEdit(client)} className="p-1.5 rounded-lg hover:bg-amber-50 text-amber-600 transition-colors" title="Modifier">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleDelete(client.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-600 transition-colors" title="Supprimer">
+                      <button onClick={() => requestDelete(client)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-600 transition-colors" title="Supprimer">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -269,6 +276,18 @@ export default function Clients() {
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={confirmDelete.isOpen}
+        title="Supprimer ce client ?"
+        message={`Êtes-vous sûr de vouloir supprimer le client "${confirmDelete.client?.nom} ${confirmDelete.client?.prenom}" ? Cette action est irréversible et supprimera toutes les données associées.`}
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        onConfirm={confirmDeleteAction}
+        onCancel={() => setConfirmDelete({ isOpen: false, client: null })}
+        type="danger"
+      />
     </div>
   );
 }

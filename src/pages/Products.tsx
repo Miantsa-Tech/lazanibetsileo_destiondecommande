@@ -1,33 +1,33 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Produit } from '../data/mockData';
-import { categories } from '../data/mockData';
 import { formatMontant, generateId } from '../utils/format';
 import { Plus, Search, Edit2, Trash2, Eye, X, Package, AlertTriangle } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
+
+const STOCK_ALERT_THRESHOLD = 10;
 
 export default function Products() {
   const { produits, addProduit, updateProduit, deleteProduit } = useApp();
   const [search, setSearch] = useState('');
-  const [filterCat, setFilterCat] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDetail, setShowDetail] = useState<Produit | null>(null);
   const [editingProduit, setEditingProduit] = useState<Produit | null>(null);
-  const [form, setForm] = useState({ nom: '', description: '', categorieId: 'cat1', prixUnitaire: 0, prixGros: 0, stock: 0, stockMinimum: 5 });
+  const [form, setForm] = useState({ nom: '', description: '', prixUnitaire: 0, stock: 0 });
+  const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; produit: Produit | null }>({ isOpen: false, produit: null });
 
   const filteredProduits = produits.filter(p => {
-    const matchSearch = `${p.nom} ${p.description}`.toLowerCase().includes(search.toLowerCase());
-    const matchCat = !filterCat || p.categorieId === filterCat;
-    return matchSearch && matchCat && p.actif;
+    return `${p.nom} ${p.description}`.toLowerCase().includes(search.toLowerCase());
   });
 
   const openCreate = () => {
-    setForm({ nom: '', description: '', categorieId: 'cat1', prixUnitaire: 0, prixGros: 0, stock: 0, stockMinimum: 5 });
+    setForm({ nom: '', description: '', prixUnitaire: 0, stock: 0 });
     setEditingProduit(null);
     setShowModal(true);
   };
 
   const openEdit = (produit: Produit) => {
-    setForm({ nom: produit.nom, description: produit.description, categorieId: produit.categorieId, prixUnitaire: produit.prixUnitaire, prixGros: produit.prixGros, stock: produit.stock, stockMinimum: produit.stockMinimum });
+    setForm({ nom: produit.nom, description: produit.description, prixUnitaire: produit.prixUnitaire, stock: produit.stock });
     setEditingProduit(produit);
     setShowModal(true);
   };
@@ -40,21 +40,21 @@ export default function Products() {
       addProduit({
         id: generateId(),
         ...form,
-        image: '',
-        actif: true,
-        dateCreation: new Date().toISOString().split('T')[0],
       });
     }
     setShowModal(false);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
-      deleteProduit(id);
-    }
+  const requestDelete = (produit: Produit) => {
+    setConfirmDelete({ isOpen: true, produit });
   };
 
-  const getCategoryName = (id: string) => categories.find(c => c.id === id)?.nom || '-';
+  const confirmDeleteAction = () => {
+    if (confirmDelete.produit) {
+      deleteProduit(confirmDelete.produit.id);
+    }
+    setConfirmDelete({ isOpen: false, produit: null });
+  };
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -62,7 +62,7 @@ export default function Products() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Produits</h1>
-          <p className="text-sm text-gray-500 mt-1">{produits.filter(p => p.actif).length} produits actifs</p>
+          <p className="text-sm text-gray-500 mt-1">{produits.length} produits enregistrés</p>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 bg-[#2D5016] hover:bg-[#3D6B1E] text-white px-4 py-2.5 rounded-lg font-medium transition-colors">
           <Plus className="w-4 h-4" /> Nouveau produit
@@ -82,16 +82,6 @@ export default function Products() {
               className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] focus:border-[#2D5016] outline-none"
             />
           </div>
-          <select
-            value={filterCat}
-            onChange={(e) => setFilterCat(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none"
-          >
-            <option value="">Toutes les catégories</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.nom}</option>
-            ))}
-          </select>
         </div>
       </div>
 
@@ -102,16 +92,11 @@ export default function Products() {
             {/* Product image placeholder */}
             <div className="h-32 bg-gradient-to-br from-green-50 to-orange-50 flex items-center justify-center relative">
               <Package className="w-12 h-12 text-gray-300" />
-              {produit.stock <= produit.stockMinimum && (
+              {produit.stock <= STOCK_ALERT_THRESHOLD && (
                 <div className="absolute top-2 right-2 bg-red-100 text-red-700 p-1 rounded-full" title="Stock faible">
                   <AlertTriangle className="w-4 h-4" />
                 </div>
               )}
-              <div className="absolute top-2 left-2">
-                <span className="bg-white/90 text-xs font-medium px-2 py-0.5 rounded-full text-gray-600">
-                  {getCategoryName(produit.categorieId)}
-                </span>
-              </div>
             </div>
             <div className="p-4">
               <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">{produit.nom}</h3>
@@ -119,10 +104,9 @@ export default function Products() {
               <div className="mt-3 flex items-center justify-between">
                 <div>
                   <p className="text-lg font-bold text-[#2D5016]">{formatMontant(produit.prixUnitaire)}</p>
-                  <p className="text-xs text-gray-400">Gros: {formatMontant(produit.prixGros)}</p>
                 </div>
                 <div className="text-right">
-                  <p className={`text-sm font-semibold ${produit.stock <= produit.stockMinimum ? 'text-red-600' : 'text-gray-700'}`}>
+                  <p className={`text-sm font-semibold ${produit.stock <= STOCK_ALERT_THRESHOLD ? 'text-red-600' : 'text-gray-700'}`}>
                     {produit.stock} unités
                   </p>
                   <p className="text-xs text-gray-400">en stock</p>
@@ -135,7 +119,7 @@ export default function Products() {
                 <button onClick={() => openEdit(produit)} className="flex-1 p-2 rounded-lg hover:bg-amber-50 text-amber-600 transition-colors flex items-center justify-center" title="Modifier">
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDelete(produit.id)} className="flex-1 p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors flex items-center justify-center" title="Supprimer">
+                <button onClick={() => requestDelete(produit)} className="flex-1 p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors flex items-center justify-center" title="Supprimer">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -172,32 +156,14 @@ export default function Products() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} rows={2} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none resize-none" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie *</label>
-                <select value={form.categorieId} onChange={(e) => setForm({...form, categorieId: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none">
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.nom}</option>
-                  ))}
-                </select>
-              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Prix unitaire (Ar) *</label>
                   <input type="number" value={form.prixUnitaire} onChange={(e) => setForm({...form, prixUnitaire: Number(e.target.value)})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" min="0" required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Prix gros (Ar)</label>
-                  <input type="number" value={form.prixGros} onChange={(e) => setForm({...form, prixGros: Number(e.target.value)})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" min="0" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock actuel *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock *</label>
                   <input type="number" value={form.stock} onChange={(e) => setForm({...form, stock: Number(e.target.value)})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" min="0" required />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock minimum</label>
-                  <input type="number" value={form.stockMinimum} onChange={(e) => setForm({...form, stockMinimum: Number(e.target.value)})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" min="0" />
                 </div>
               </div>
               <div className="flex gap-3 pt-2">
@@ -229,7 +195,6 @@ export default function Products() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-800">{showDetail.nom}</h3>
-                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{getCategoryName(showDetail.categorieId)}</span>
               </div>
               <p className="text-sm text-gray-600">{showDetail.description}</p>
               <div className="grid grid-cols-2 gap-4">
@@ -237,25 +202,33 @@ export default function Products() {
                   <p className="text-xs text-green-600">Prix unitaire</p>
                   <p className="text-lg font-bold text-green-800">{formatMontant(showDetail.prixUnitaire)}</p>
                 </div>
-                <div className="bg-orange-50 rounded-lg p-3">
-                  <p className="text-xs text-orange-600">Prix gros</p>
-                  <p className="text-lg font-bold text-orange-800">{formatMontant(showDetail.prixGros)}</p>
+                <div className={`rounded-lg p-3 ${showDetail.stock <= STOCK_ALERT_THRESHOLD ? 'bg-red-50' : 'bg-blue-50'}`}>
+                  <p className={`text-xs ${showDetail.stock <= STOCK_ALERT_THRESHOLD ? 'text-red-600' : 'text-blue-600'}`}>Stock actuel</p>
+                  <p className={`text-lg font-bold ${showDetail.stock <= STOCK_ALERT_THRESHOLD ? 'text-red-800' : 'text-blue-800'}`}>{showDetail.stock} unités</p>
                 </div>
               </div>
-              <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
-                <div>
-                  <p className="text-xs text-gray-500">Stock actuel</p>
-                  <p className={`text-lg font-bold ${showDetail.stock <= showDetail.stockMinimum ? 'text-red-600' : 'text-gray-800'}`}>{showDetail.stock} unités</p>
+              {showDetail.stock <= STOCK_ALERT_THRESHOLD && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                  <p className="text-sm text-red-700 font-medium">Attention : stock faible ! Réapprovisionnement nécessaire.</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-gray-500">Stock minimum</p>
-                  <p className="text-lg font-bold text-gray-800">{showDetail.stockMinimum} unités</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={confirmDelete.isOpen}
+        title="Supprimer ce produit ?"
+        message={`Êtes-vous sûr de vouloir supprimer le produit "${confirmDelete.produit?.nom}" ? Cette action est irréversible.`}
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        onConfirm={confirmDeleteAction}
+        onCancel={() => setConfirmDelete({ isOpen: false, produit: null })}
+        type="danger"
+      />
     </div>
   );
 }

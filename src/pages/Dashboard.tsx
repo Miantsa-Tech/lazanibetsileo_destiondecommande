@@ -22,7 +22,7 @@ export default function Dashboard() {
   const commandesValidees = commandes.filter(c => c.statut === 'validee').length;
   const facturesImpayees = factures.filter(f => f.statutPaiement === 'non_paye' || f.statutPaiement === 'partiel');
   const totalImpaye = facturesImpayees.reduce((sum, f) => sum + (f.montantTotal - f.montantPaye), 0);
-  const stockFaible = produits.filter(p => p.stock <= p.stockMinimum);
+  const stockFaible = produits.filter(p => p.stock <= 10);
   const livraisonsEnCours = livraisons.filter(l => l.statut === 'en_cours' || l.statut === 'en_attente').length;
 
   // Statut des commandes pour le pie chart
@@ -229,7 +229,7 @@ export default function Dashboard() {
                     </div>
                     <div className="text-right">
                       <span className="text-sm font-medium text-red-600">{p.stock} unités</span>
-                      <span className="text-xs text-gray-400 ml-1">/ min {p.stockMinimum}</span>
+                      <span className="text-xs text-gray-400 ml-1">/ min 10</span>
                     </div>
                   </div>
                 ))}

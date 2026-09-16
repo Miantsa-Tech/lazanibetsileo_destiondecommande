@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatMontant, formatDate, getTypeClientLabel } from '../utils/format';
-import { ventesParMois, topClients, topProduits, categories } from '../data/mockData';
+import { ventesParMois, topClients, topProduits } from '../data/mockData';
 import { BarChart3, Download, TrendingUp, Users, Package, Calendar } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -23,12 +23,11 @@ export default function Reports() {
     { name: 'Grossiste', value: clients.filter(c => c.type === 'grossiste').length, ca: clients.filter(c => c.type === 'grossiste').reduce((s, c) => s + c.chiffreAffaires, 0) },
   ];
 
-  // Données par catégorie de produits
-  const parCategorie = categories.map(cat => ({
-    name: cat.nom,
-    produits: produits.filter(p => p.categorieId === cat.id).length,
-    stock: produits.filter(p => p.categorieId === cat.id).reduce((s, p) => s + p.stock, 0),
-  })).filter(d => d.produits > 0);
+  // Données stock par produit
+  const stockParProduit = produits.map(p => ({
+    name: p.nom.length > 20 ? p.nom.substring(0, 20) + '...' : p.nom,
+    stock: p.stock,
+  }));
 
   // Règlements par type
   const reglementsParType = [
@@ -212,17 +211,15 @@ export default function Reports() {
       {reportType === 'produits' && (
         <div className="space-y-6">
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-            <h3 className="font-semibold text-gray-800 mb-4">Stock par catégorie</h3>
+            <h3 className="font-semibold text-gray-800 mb-4">Stock par produit</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={parCategorie}>
+                <BarChart data={stockParProduit}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#9CA3AF" angle={-20} textAnchor="end" height={60} />
+                  <XAxis dataKey="name" tick={{ fontSize: 9 }} stroke="#9CA3AF" angle={-20} textAnchor="end" height={80} />
                   <YAxis tick={{ fontSize: 12 }} stroke="#9CA3AF" />
                   <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }} />
-                  <Legend />
-                  <Bar dataKey="produits" fill="#2D5016" radius={[4, 4, 0, 0]} name="Nb. Produits" />
-                  <Bar dataKey="stock" fill="#E67E22" radius={[4, 4, 0, 0]} name="Stock total" />
+                  <Bar dataKey="stock" fill="#2D5016" radius={[4, 4, 0, 0]} name="Stock" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -236,22 +233,19 @@ export default function Reports() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="text-left px-3 py-2 font-medium text-gray-600">Produit</th>
-                    <th className="text-left px-3 py-2 font-medium text-gray-600">Catégorie</th>
+                    <th className="text-right px-3 py-2 font-medium text-gray-600">Prix unitaire</th>
                     <th className="text-right px-3 py-2 font-medium text-gray-600">Stock</th>
-                    <th className="text-right px-3 py-2 font-medium text-gray-600">Min.</th>
                     <th className="text-center px-3 py-2 font-medium text-gray-600">État</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {produits.filter(p => p.actif).map(produit => {
-                    const cat = categories.find(c => c.id === produit.categorieId);
-                    const isLow = produit.stock <= produit.stockMinimum;
+                  {produits.map(produit => {
+                    const isLow = produit.stock <= 10;
                     return (
                       <tr key={produit.id} className="border-t border-gray-50">
                         <td className="px-3 py-2 font-medium text-gray-800">{produit.nom}</td>
-                        <td className="px-3 py-2 text-gray-600">{cat?.nom || '-'}</td>
+                        <td className="px-3 py-2 text-right text-gray-600">{formatMontant(produit.prixUnitaire)}</td>
                         <td className="px-3 py-2 text-right font-medium text-gray-800">{produit.stock}</td>
-                        <td className="px-3 py-2 text-right text-gray-500">{produit.stockMinimum}</td>
                         <td className="px-3 py-2 text-center">
                           <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${isLow ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                             {isLow ? 'Faible' : 'OK'}

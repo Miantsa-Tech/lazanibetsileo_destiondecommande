@@ -25,14 +25,8 @@ export interface Produit {
   id: string;
   nom: string;
   description: string;
-  categorieId: string;
   prixUnitaire: number;
-  prixGros: number;
   stock: number;
-  stockMinimum: number;
-  image: string;
-  actif: boolean;
-  dateCreation: string;
 }
 
 export interface LigneCommande {
@@ -123,20 +117,20 @@ export const clients: Client[] = [
   { id: 'cli10', nom: 'Betsileo Trading', prenom: '', email: 'info@betsileotrading.mg', telephone: '+261 20 75 111 22', adresse: 'Centre-ville', ville: 'Fianarantsoa', type: 'entreprise', dateCreation: '2024-01-05', chiffreAffaires: 28400000, actif: true },
 ];
 
-// Produits réalistes
+// Produits réalistes (conforme au schéma SQL : id, nom_produit, prix_unitaire, description, stock)
 export const produits: Produit[] = [
-  { id: 'prod1', nom: 'Riz de Vakinankaratra (50kg)', description: 'Riz blanc premium de la région Vakinankaratra', categorieId: 'cat1', prixUnitaire: 180000, prixGros: 165000, stock: 45, stockMinimum: 10, image: '', actif: true, dateCreation: '2024-01-01' },
-  { id: 'prod2', nom: 'Vanille Bourbon (1kg)', description: 'Vanille de première qualité, grade A', categorieId: 'cat4', prixUnitaire: 1500000, prixGros: 1350000, stock: 12, stockMinimum: 5, image: '', actif: true, dateCreation: '2024-01-01' },
-  { id: 'prod3', nom: 'Lamba Hoany Traditionnel', description: 'Tissu traditionnel malgache tissé main', categorieId: 'cat3', prixUnitaire: 85000, prixGros: 70000, stock: 30, stockMinimum: 8, image: '', actif: true, dateCreation: '2024-01-15' },
-  { id: 'prod4', nom: 'Girofle Séché (1kg)', description: 'Clous de girofle de Sainte-Marie', categorieId: 'cat4', prixUnitaire: 45000, prixGros: 38000, stock: 60, stockMinimum: 15, image: '', actif: true, dateCreation: '2024-02-01' },
-  { id: 'prod5', nom: 'Panier Tressé Betsileo', description: 'Panier artisanal en raphia, fait main', categorieId: 'cat2', prixUnitaire: 35000, prixGros: 28000, stock: 25, stockMinimum: 10, image: '', actif: true, dateCreation: '2024-02-10' },
-  { id: 'prod6', nom: 'Café Vert de Madagascar (5kg)', description: 'Grains de café arabica de la région Vakinankaratra', categorieId: 'cat5', prixUnitaire: 125000, prixGros: 110000, stock: 20, stockMinimum: 8, image: '', actif: true, dateCreation: '2024-02-15' },
-  { id: 'prod7', nom: 'Huile Essentielle Ravintsara (100ml)', description: 'Huile essentielle pure de ravintsara', categorieId: 'cat6', prixUnitaire: 55000, prixGros: 45000, stock: 40, stockMinimum: 10, image: '', actif: true, dateCreation: '2024-03-01' },
-  { id: 'prod8', nom: 'Savon Artisanal au Curcuma', description: 'Savon naturel fait main au curcuma malgache', categorieId: 'cat6', prixUnitaire: 12000, prixGros: 9000, stock: 100, stockMinimum: 20, image: '', actif: true, dateCreation: '2024-03-10' },
-  { id: 'prod9', nom: 'Rhum Arrangé Vanille (70cl)', description: 'Rhum arrangé à la vanille de Madagascar', categorieId: 'cat5', prixUnitaire: 75000, prixGros: 62000, stock: 35, stockMinimum: 10, image: '', actif: true, dateCreation: '2024-03-15' },
-  { id: 'prod10', nom: 'Poivre Noir de Madagascar (500g)', description: 'Poivre noir premium, récolte sélectionnée', categorieId: 'cat4', prixUnitaire: 65000, prixGros: 55000, stock: 3, stockMinimum: 10, image: '', actif: true, dateCreation: '2024-04-01' },
-  { id: 'prod11', nom: 'Nappe Brodée Antemoro', description: 'Nappe brodée sur papier Antemoro traditionnel', categorieId: 'cat2', prixUnitaire: 120000, prixGros: 100000, stock: 15, stockMinimum: 5, image: '', actif: true, dateCreation: '2024-04-10' },
-  { id: 'prod12', nom: 'Miel de la Forêt (1kg)', description: 'Miel naturel de la forêt de Betsileo', categorieId: 'cat1', prixUnitaire: 48000, prixGros: 40000, stock: 28, stockMinimum: 10, image: '', actif: true, dateCreation: '2024-04-15' },
+  { id: 'prod1', nom: 'Riz de Vakinankaratra (50kg)', description: 'Riz blanc premium de la région Vakinankaratra', prixUnitaire: 180000, stock: 45 },
+  { id: 'prod2', nom: 'Vanille Bourbon (1kg)', description: 'Vanille de première qualité, grade A', prixUnitaire: 1500000, stock: 12 },
+  { id: 'prod3', nom: 'Lamba Hoany Traditionnel', description: 'Tissu traditionnel malgache tissé main', prixUnitaire: 85000, stock: 30 },
+  { id: 'prod4', nom: 'Girofle Séché (1kg)', description: 'Clous de girofle de Sainte-Marie', prixUnitaire: 45000, stock: 60 },
+  { id: 'prod5', nom: 'Panier Tressé Betsileo', description: 'Panier artisanal en raphia, fait main', prixUnitaire: 35000, stock: 25 },
+  { id: 'prod6', nom: 'Café Vert de Madagascar (5kg)', description: 'Grains de café arabica de la région Vakinankaratra', prixUnitaire: 125000, stock: 20 },
+  { id: 'prod7', nom: 'Huile Essentielle Ravintsara (100ml)', description: 'Huile essentielle pure de ravintsara', prixUnitaire: 55000, stock: 40 },
+  { id: 'prod8', nom: 'Savon Artisanal au Curcuma', description: 'Savon naturel fait main au curcuma malgache', prixUnitaire: 12000, stock: 100 },
+  { id: 'prod9', nom: 'Rhum Arrangé Vanille (70cl)', description: 'Rhum arrangé à la vanille de Madagascar', prixUnitaire: 75000, stock: 35 },
+  { id: 'prod10', nom: 'Poivre Noir de Madagascar (500g)', description: 'Poivre noir premium, récolte sélectionnée', prixUnitaire: 65000, stock: 3 },
+  { id: 'prod11', nom: 'Nappe Brodée Antemoro', description: 'Nappe brodée sur papier Antemoro traditionnel', prixUnitaire: 120000, stock: 15 },
+  { id: 'prod12', nom: 'Miel de la Forêt (1kg)', description: 'Miel naturel de la forêt de Betsileo', prixUnitaire: 48000, stock: 28 },
 ];
 
 // Commandes

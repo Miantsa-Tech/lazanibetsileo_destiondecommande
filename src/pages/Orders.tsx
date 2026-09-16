@@ -211,7 +211,7 @@ export default function Orders() {
 
                 {showProduitSelect && (
                   <div className="mb-3 border border-gray-200 rounded-lg max-h-40 overflow-y-auto">
-                    {produits.filter(p => p.actif).map(p => (
+                    {produits.map(p => (
                       <button key={p.id} type="button" onClick={() => addLigne(p.id)} className="w-full text-left px-3 py-2 text-sm hover:bg-green-50 border-b border-gray-50 last:border-0 flex justify-between">
                         <span>{p.nom}</span>
                         <span className="text-gray-500">{formatMontant(p.prixUnitaire)}</span>
