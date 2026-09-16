@@ -7,13 +7,28 @@ import ConfirmModal from '../components/ConfirmModal';
 
 const STOCK_ALERT_THRESHOLD = 10;
 
+// Liste des noms de produits prédéfinis
+const PRODUITS_PREDIFINIS = [
+  'Vin Rouge',
+  'Vin Blanc',
+  'Vin Rosé',
+  'Vin Gris',
+  'Vin Blanc Moelleux',
+  'Vin Apéritif',
+  'Vin Mousseux',
+  'Vin Blanc Spécial',
+  'Eau de Vie de Vin',
+  'Eau de Vie à la Mandarine',
+  'Liqueur à l\'Orange',
+];
+
 export default function Products() {
   const { produits, addProduit, updateProduit, deleteProduit } = useApp();
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDetail, setShowDetail] = useState<Produit | null>(null);
   const [editingProduit, setEditingProduit] = useState<Produit | null>(null);
-  const [form, setForm] = useState({ nom: '', description: '', prixUnitaire: 0, stock: 0, unite: 'bouteille' as 'L' | 'CL' | 'bouteille', contenance: 75 });
+  const [form, setForm] = useState({ nom: '', description: '', prixUnitaire: '' as string | number, stock: '' as string | number, unite: 'bouteille' as 'L' | 'CL' | 'bouteille', contenance: '' as string | number });
   const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; produit: Produit | null }>({ isOpen: false, produit: null });
 
   const filteredProduits = produits.filter(p => {
@@ -21,25 +36,41 @@ export default function Products() {
   });
 
   const openCreate = () => {
-    setForm({ nom: '', description: '', prixUnitaire: 0, stock: 0, unite: 'bouteille', contenance: 75 });
+    setForm({ nom: '', description: '', prixUnitaire: '', stock: '', unite: 'bouteille', contenance: '' });
     setEditingProduit(null);
     setShowModal(true);
   };
 
   const openEdit = (produit: Produit) => {
-    setForm({ nom: produit.nom, description: produit.description, prixUnitaire: produit.prixUnitaire, stock: produit.stock, unite: produit.unite, contenance: produit.contenance || 75 });
+    setForm({ 
+      nom: produit.nom, 
+      description: produit.description, 
+      prixUnitaire: produit.prixUnitaire, 
+      stock: produit.stock, 
+      unite: produit.unite, 
+      contenance: produit.contenance || '' 
+    });
     setEditingProduit(produit);
     setShowModal(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const produitData = {
+      nom: form.nom,
+      description: form.description,
+      prixUnitaire: Number(form.prixUnitaire) || 0,
+      stock: Number(form.stock) || 0,
+      unite: form.unite,
+      contenance: form.unite === 'bouteille' ? (Number(form.contenance) || 75) : undefined,
+    };
+    
     if (editingProduit) {
-      updateProduit({ ...editingProduit, ...form });
+      updateProduit({ ...editingProduit, ...produitData });
     } else {
       addProduit({
         id: generateId(),
-        ...form,
+        ...produitData,
       });
     }
     setShowModal(false);
@@ -154,7 +185,17 @@ export default function Products() {
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nom du produit *</label>
-                <input type="text" value={form.nom} onChange={(e) => setForm({...form, nom: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" required />
+                <select 
+                  value={form.nom} 
+                  onChange={(e) => setForm({...form, nom: e.target.value})} 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none"
+                  required
+                >
+                  <option value="">-- Sélectionner un produit --</option>
+                  {PRODUITS_PREDIFINIS.map((nom) => (
+                    <option key={nom} value={nom}>{nom}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -163,26 +204,67 @@ export default function Products() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Prix unitaire (Ar) *</label>
-                  <input type="number" value={form.prixUnitaire} onChange={(e) => setForm({...form, prixUnitaire: Number(e.target.value)})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" min="0" required />
+                  <input 
+                    type="number" 
+                    value={form.prixUnitaire} 
+                    onChange={(e) => setForm({...form, prixUnitaire: e.target.value})} 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" 
+                    min="0" 
+                    placeholder="0"
+                    required 
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Stock *</label>
-                  <input type="number" value={form.stock} onChange={(e) => setForm({...form, stock: Number(e.target.value)})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" min="0" required />
+                  <input 
+                    type="number" 
+                    value={form.stock} 
+                    onChange={(e) => setForm({...form, stock: e.target.value})} 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" 
+                    min="0" 
+                    placeholder="0"
+                    required 
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Unité de vente *</label>
-                  <select value={form.unite} onChange={(e) => setForm({...form, unite: e.target.value as 'L' | 'CL' | 'bouteille'})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none">
+                  <select 
+                    value={form.unite} 
+                    onChange={(e) => {
+                      const newUnite = e.target.value as 'L' | 'CL' | 'bouteille';
+                      setForm({
+                        ...form, 
+                        unite: newUnite,
+                        // Réinitialiser la contenance si l'unité n'est pas "bouteille"
+                        contenance: newUnite === 'bouteille' ? form.contenance : ''
+                      });
+                    }} 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none"
+                  >
                     <option value="bouteille">Bouteille</option>
                     <option value="L">Litre (L)</option>
                     <option value="CL">Centilitre (CL)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Contenance (CL)</label>
-                  <input type="number" value={form.contenance} onChange={(e) => setForm({...form, contenance: Number(e.target.value)})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" min="0" placeholder="75" />
-                  <p className="text-xs text-gray-400 mt-1">Ex: 75 pour 75cl, 70 pour 70cl</p>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Contenance (CL)
+                    {form.unite !== 'bouteille' && <span className="text-xs text-gray-400 ml-1">(non applicable)</span>}
+                  </label>
+                  <input 
+                    type="number" 
+                    value={form.unite === 'bouteille' ? form.contenance : ''}
+                    onChange={(e) => setForm({...form, contenance: e.target.value})} 
+                    className={`w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none ${form.unite !== 'bouteille' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                    min="0" 
+                    placeholder="75"
+                    disabled={form.unite !== 'bouteille'}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    {form.unite === 'bouteille' ? 'Ex: 75 pour 75cl, 70 pour 70cl' : 'Contenance uniquement pour les bouteilles'}
+                  </p>
                 </div>
               </div>
               <div className="flex gap-3 pt-2">

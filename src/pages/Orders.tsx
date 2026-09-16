@@ -236,7 +236,14 @@ export default function Orders() {
                           <tr key={index} className="border-t border-gray-50">
                             <td className="px-3 py-2 text-gray-800">{ligne.nomProduit}</td>
                             <td className="px-3 py-2 text-center">
-                              <input type="number" value={ligne.quantite} onChange={(e) => updateQuantite(index, Number(e.target.value))} className="w-16 px-2 py-1 border border-gray-200 rounded text-center text-sm" min="1" />
+                              <input 
+                                type="number" 
+                                value={ligne.quantite || ''} 
+                                onChange={(e) => updateQuantite(index, Number(e.target.value))} 
+                                className="w-16 px-2 py-1 border border-gray-200 rounded text-center text-sm" 
+                                min="0"
+                                placeholder="0"
+                              />
                             </td>
                             <td className="px-3 py-2 text-center">
                               <select 
