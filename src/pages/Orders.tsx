@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Commande, LigneCommande } from '../data/mockData';
 import { formatMontant, formatDate, getStatutCommandeLabel, getStatutCommandeClass, generateId } from '../utils/format';
@@ -7,8 +6,7 @@ import { Plus, Search, Eye, Edit2, Trash2, FileText, X, ShoppingCart, ChevronDow
 import ConfirmModal from '../components/ConfirmModal';
 
 export default function Orders() {
-  const navigate = useNavigate();
-  const { clients, produits, commandes, addCommande, updateCommande, deleteCommande } = useApp();
+  const { clients, produits, commandes, factures, addCommande, updateCommande, deleteCommande, addFacture } = useApp();
   const [search, setSearch] = useState('');
   const [filterStatut, setFilterStatut] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -106,8 +104,42 @@ export default function Orders() {
   };
 
   const handleCommander = (commande: Commande) => {
-    // Naviguer vers la page des factures avec la commande sélectionnée
-    navigate('/factures', { state: { selectedCommandeId: commande.id } });
+    // Vérifier si une facture existe déjà pour cette commande
+    const factureExistante = factures.find(f => f.commandeId === commande.id);
+    
+    if (factureExistante) {
+      alert(`Une facture existe déjà pour cette commande : ${factureExistante.numero}`);
+      return;
+    }
+
+    // Créer automatiquement la facture
+    const client = clients.find(c => c.id === commande.clientId);
+    if (!client) return;
+
+    const newFacture = {
+      id: generateId(),
+      numero: `FAC-${new Date().getFullYear()}-${String(factures.length + 1).padStart(3, '0')}`,
+      commandeId: commande.id,
+      numeroCommande: commande.numero,
+      clientId: client.id,
+      nomClient: `${client.nom} ${client.prenom}`,
+      montantTotal: commande.montantTotal,
+      montantPaye: 0,
+      statutPaiement: 'non_paye' as const,
+      dateCreation: new Date().toISOString().split('T')[0],
+      dateEcheance: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    };
+
+    addFacture(newFacture);
+    
+    // Mettre à jour le statut de la commande à "validée"
+    updateCommande({ 
+      ...commande, 
+      statut: 'validee', 
+      dateModification: new Date().toISOString().split('T')[0] 
+    });
+
+    alert(`Facture ${newFacture.numero} créée avec succès pour la commande ${commande.numero}`);
   };
 
   return (

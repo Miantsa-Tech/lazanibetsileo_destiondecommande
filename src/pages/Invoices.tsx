@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Facture } from '../data/mockData';
 import { formatMontant, formatDate, getStatutPaiementLabel, getStatutPaiementClass, generateId } from '../utils/format';
@@ -7,7 +6,6 @@ import { Eye, X, FileText, Download, Printer, Plus, Calendar, User, CreditCard, 
 import { generateInvoicePDF, printInvoice } from '../utils/invoiceUtils';
 
 export default function Invoices() {
-  const location = useLocation();
   const { factures, commandes, clients, addFacture, companyLogo } = useApp();
   const [search, setSearch] = useState('');
   const [filterStatut, setFilterStatut] = useState('');
@@ -17,20 +15,6 @@ export default function Invoices() {
     commandeId: '',
     dateEcheance: '',
   });
-
-  // Ouvrir automatiquement le formulaire si une commande est passée via navigation
-  useEffect(() => {
-    const state = location.state as { selectedCommandeId?: string } | null;
-    if (state?.selectedCommandeId) {
-      setNewFacture({
-        commandeId: state.selectedCommandeId,
-        dateEcheance: '',
-      });
-      setShowCreateModal(true);
-      // Nettoyer le state pour éviter de rouvrir le modal au rafraîchissement
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state]);
 
   const filteredFactures = factures.filter(f => {
     const matchSearch = `${f.numero} ${f.nomClient}`.toLowerCase().includes(search.toLowerCase());
