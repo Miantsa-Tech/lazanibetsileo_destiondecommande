@@ -1,2 +1,2 @@
-# lazanibetsileo_destiondecommande
+# lazanibetsileo_gestiondecommande
 Gestion Commandes Lazan'iBetsileo
