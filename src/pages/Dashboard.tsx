@@ -20,8 +20,8 @@ export default function Dashboard() {
   const totalCA = commandes.filter(c => c.statut !== 'annulee').reduce((sum, c) => sum + c.montantTotal, 0);
   const commandesEnCours = commandes.filter(c => c.statut === 'en_cours').length;
   const commandesValidees = commandes.filter(c => c.statut === 'validee').length;
-  const facturesImpayees = factures.filter(f => f.statutPaiement === 'non_paye' || f.statutPaiement === 'partiel');
-  const totalImpaye = facturesImpayees.reduce((sum, f) => sum + (f.montantTotal - f.montantPaye), 0);
+  const facturesImpayees = factures.filter(f => f.statut === 'emise' || f.statut === 'en_retard' || f.statut === 'partielle');
+  const totalImpaye = facturesImpayees.reduce((sum, f) => sum + f.montant_ttc, 0);
   const stockFaible = produits.filter(p => p.stock <= 10);
   const livraisonsEnCours = livraisons.filter(l => l.statut === 'en_cours' || l.statut === 'en_attente').length;
 

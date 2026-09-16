@@ -59,25 +59,29 @@ export function getStatutCommandeLabel(statut: string): string {
 }
 
 /**
- * Retourne la classe CSS pour un statut de paiement
+ * Retourne la classe CSS pour un statut de facture
  */
-export function getStatutPaiementClass(statut: string): string {
+export function getStatutFactureClass(statut: string): string {
   switch (statut) {
-    case 'non_paye': return 'bg-red-100 text-red-800';
-    case 'partiel': return 'bg-yellow-100 text-yellow-800';
-    case 'paye': return 'bg-green-100 text-green-800';
+    case 'emise': return 'bg-blue-100 text-blue-800';
+    case 'payee': return 'bg-green-100 text-green-800';
+    case 'partielle': return 'bg-yellow-100 text-yellow-800';
+    case 'en_retard': return 'bg-red-100 text-red-800';
+    case 'annulee': return 'bg-gray-100 text-gray-800';
     default: return 'bg-gray-100 text-gray-800';
   }
 }
 
 /**
- * Retourne le label d'un statut de paiement
+ * Retourne le label d'un statut de facture
  */
-export function getStatutPaiementLabel(statut: string): string {
+export function getStatutFactureLabel(statut: string): string {
   switch (statut) {
-    case 'non_paye': return 'Non payé';
-    case 'partiel': return 'Partiel';
-    case 'paye': return 'Payé';
+    case 'emise': return 'Émise';
+    case 'payee': return 'Payée';
+    case 'partielle': return 'Partielle';
+    case 'en_retard': return 'En retard';
+    case 'annulee': return 'Annulée';
     default: return statut;
   }
 }

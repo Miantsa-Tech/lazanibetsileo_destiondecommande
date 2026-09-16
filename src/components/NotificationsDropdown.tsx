@@ -63,13 +63,15 @@ export default function NotificationsDropdown() {
     });
 
     // Factures impayées
-    factures.filter(f => f.statutPaiement === 'non_paye').forEach(f => {
+    factures.filter(f => f.statut === 'emise' || f.statut === 'en_retard').forEach(f => {
+      const commande = commandes.find(c => c.id === f.id_commande);
+      const clientNom = commande?.nomClient || 'Client';
       notifs.push({
         id: `fac-${f.id}`,
         type: 'facture',
         title: 'Facture impayée',
-        message: `${f.nomClient} - ${formatMontant(f.montantTotal)}`,
-        date: f.dateCreation,
+        message: `${clientNom} - ${formatMontant(f.montant_ttc)}`,
+        date: f.date_facture,
         read: false,
         icon: <CreditCard className="w-4 h-4" />,
         color: 'text-red-600 bg-red-100',

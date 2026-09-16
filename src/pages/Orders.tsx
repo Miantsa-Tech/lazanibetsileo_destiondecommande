@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Commande, LigneCommande } from '../data/mockData';
+import { Commande, LigneCommande, Facture } from '../data/mockData';
 import { formatMontant, formatDate, getStatutCommandeLabel, getStatutCommandeClass, generateId } from '../utils/format';
 import { Plus, Search, Eye, Edit2, Trash2, FileText, X, ShoppingCart, ChevronDown } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
@@ -105,41 +105,39 @@ export default function Orders() {
 
   const handleCommander = (commande: Commande) => {
     // Vérifier si une facture existe déjà pour cette commande
-    const factureExistante = factures.find(f => f.commandeId === commande.id);
+    const factureExistante = factures.find(f => f.id_commande === commande.id);
     
     if (factureExistante) {
-      alert(`Une facture existe déjà pour cette commande : ${factureExistante.numero}`);
+      alert(`Une facture existe déjà pour cette commande : ${factureExistante.num_facture}`);
       return;
     }
 
     // Créer automatiquement la facture
-    const client = clients.find(c => c.id === commande.clientId);
-    if (!client) return;
-
-    const newFacture = {
+    const now = new Date().toISOString();
+    const newFact: Facture = {
       id: generateId(),
-      numero: `FAC-${new Date().getFullYear()}-${String(factures.length + 1).padStart(3, '0')}`,
-      commandeId: commande.id,
-      numeroCommande: commande.numero,
-      clientId: client.id,
-      nomClient: `${client.nom} ${client.prenom}`,
-      montantTotal: commande.montantTotal,
-      montantPaye: 0,
-      statutPaiement: 'non_paye' as const,
-      dateCreation: new Date().toISOString().split('T')[0],
-      dateEcheance: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      num_facture: `FAC-${new Date().getFullYear()}-${String(factures.length + 1).padStart(3, '0')}`,
+      id_commande: commande.id,
+      date_facture: now.split('T')[0],
+      date_echeance: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      montant_ht: commande.montantTotal,
+      montant_tva: 0,
+      montant_ttc: commande.montantTotal,
+      statut: 'emise',
+      created_at: now,
+      updated_at: now,
     };
 
-    addFacture(newFacture);
+    addFacture(newFact);
     
     // Mettre à jour le statut de la commande à "validée"
     updateCommande({ 
       ...commande, 
       statut: 'validee', 
-      dateModification: new Date().toISOString().split('T')[0] 
+      dateModification: now.split('T')[0] 
     });
 
-    alert(`Facture ${newFacture.numero} créée avec succès pour la commande ${commande.numero}`);
+    alert(`Facture ${newFact.num_facture} créée avec succès pour la commande ${commande.numero}`);
   };
 
   return (
@@ -219,7 +217,7 @@ export default function Orders() {
                   </div>
                 </div>
                 {/* Bouton Commander - Plus visible */}
-                {cmd.statut === 'en_cours' && !factures.find(f => f.commandeId === cmd.id) && (
+                {cmd.statut === 'en_cours' && !factures.find(f => f.id_commande === cmd.id) && (
                   <button 
                     onClick={() => handleCommander(cmd)} 
                     className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"

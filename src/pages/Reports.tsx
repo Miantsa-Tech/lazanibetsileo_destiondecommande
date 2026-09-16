@@ -303,7 +303,7 @@ export default function Reports() {
                 <div className="bg-red-50 rounded-lg p-4">
                   <p className="text-xs text-red-600">Total restant dû</p>
                   <p className="text-2xl font-bold text-red-800">
-                    {formatMontant(factures.reduce((s, f) => s + (f.montantTotal - f.montantPaye), 0))}
+                    {formatMontant(factures.filter(f => f.statut !== 'payee').reduce((s, f) => s + f.montant_ttc, 0))}
                   </p>
                 </div>
                 <div className="bg-blue-50 rounded-lg p-4">
@@ -312,7 +312,7 @@ export default function Reports() {
                 </div>
                 <div className="bg-purple-50 rounded-lg p-4">
                   <p className="text-xs text-purple-600">Factures impayées</p>
-                  <p className="text-2xl font-bold text-purple-800">{factures.filter(f => f.statutPaiement !== 'paye').length}</p>
+                  <p className="text-2xl font-bold text-purple-800">{factures.filter(f => f.statut !== 'payee').length}</p>
                 </div>
               </div>
             </div>

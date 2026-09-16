@@ -5,7 +5,7 @@ import { formatMontant, formatDate, getTypeReglementLabel, getTypeReglementClass
 import { Plus, Search, Eye, X, CreditCard, Receipt } from 'lucide-react';
 
 export default function Payments() {
-  const { clients, factures, reglements, addReglement } = useApp();
+  const { clients, factures, reglements, addReglement, commandes } = useApp();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -35,7 +35,7 @@ export default function Payments() {
       id: generateId(),
       numero: `REG-2024-${String(reglements.length + 1).padStart(3, '0')}`,
       factureId: form.factureId,
-      numeroFacture: facture.numero,
+      numeroFacture: facture.num_facture,
       clientId: form.clientId,
       nomClient: `${client.nom} ${client.prenom}`,
       montant: form.montant,
@@ -50,7 +50,10 @@ export default function Payments() {
   const handleFactureChange = (factureId: string) => {
     const facture = factures.find(f => f.id === factureId);
     if (facture) {
-      setForm({ ...form, factureId, clientId: facture.clientId, montant: facture.montantTotal - facture.montantPaye });
+      const commande = commandes.find(c => c.id === facture.id_commande);
+      const clientId = commande?.clientId || '';
+      // Pour simplifier, on utilise le montant TTC comme montant à payer
+      setForm({ ...form, factureId, clientId, montant: facture.montant_ttc });
     }
   };
 
@@ -161,9 +164,13 @@ export default function Payments() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Facture *</label>
                 <select value={form.factureId} onChange={(e) => handleFactureChange(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" required>
                   <option value="">Sélectionner une facture</option>
-                  {factures.filter(f => f.statutPaiement !== 'paye').map(f => (
-                    <option key={f.id} value={f.id}>{f.numero} - {f.nomClient} (Reste: {formatMontant(f.montantTotal - f.montantPaye)})</option>
-                  ))}
+                  {factures.filter(f => f.statut !== 'payee').map(f => {
+                    const commande = commandes.find(c => c.id === f.id_commande);
+                    const clientNom = commande?.nomClient || 'Client';
+                    return (
+                      <option key={f.id} value={f.id}>{f.num_facture} - {clientNom} (Total: {formatMontant(f.montant_ttc)})</option>
+                    );
+                  })}
                 </select>
               </div>
               <div>

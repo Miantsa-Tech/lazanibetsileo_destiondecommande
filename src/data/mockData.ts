@@ -55,16 +55,16 @@ export interface Commande {
 
 export interface Facture {
   id: string;
-  numero: string;
-  commandeId: string;
-  numeroCommande: string;
-  clientId: string;
-  nomClient: string;
-  montantTotal: number;
-  montantPaye: number;
-  statutPaiement: 'non_paye' | 'partiel' | 'paye';
-  dateCreation: string;
-  dateEcheance: string;
+  num_facture: string;
+  id_commande: string;
+  date_facture: string;
+  date_echeance: string | null;
+  montant_ht: number;
+  montant_tva: number;
+  montant_ttc: number;
+  statut: 'emise' | 'payee' | 'partielle' | 'en_retard' | 'annulee';
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Reglement {
@@ -156,17 +156,17 @@ export const commandes: Commande[] = [
   { id: 'cmd10', numero: 'CMD-2024-010', clientId: 'cli9', nomClient: 'Razafindrabe Noro', lignes: [{ produitId: 'prod5', nomProduit: 'Vin Blanc Moelleux', quantite: 3, prixUnitaire: 35000, total: 105000, unite: 'bouteille' }, { produitId: 'prod11', nomProduit: 'Liqueur à l\'Orange', quantite: 2, prixUnitaire: 58000, total: 116000, unite: 'bouteille' }], montantTotal: 221000, statut: 'en_cours', dateCreation: '2024-08-15', dateModification: '2024-08-15', notes: '' },
 ];
 
-// Factures
+// Factures (conforme au schéma SQL)
 export const factures: Facture[] = [
-  { id: 'fac1', numero: 'FAC-2024-001', commandeId: 'cmd1', numeroCommande: 'CMD-2024-001', clientId: 'cli2', nomClient: 'Rasoa Marie', montantTotal: 3225000, montantPaye: 3225000, statutPaiement: 'paye', dateCreation: '2024-05-10', dateEcheance: '2024-06-10' },
-  { id: 'fac2', numero: 'FAC-2024-002', commandeId: 'cmd2', numeroCommande: 'CMD-2024-002', clientId: 'cli3', nomClient: 'Rabe & Fils SARL', montantTotal: 4400000, montantPaye: 2200000, statutPaiement: 'partiel', dateCreation: '2024-06-01', dateEcheance: '2024-07-01' },
-  { id: 'fac3', numero: 'FAC-2024-003', commandeId: 'cmd3', numeroCommande: 'CMD-2024-003', clientId: 'cli4', nomClient: 'Randrianarisoa Pierre', montantTotal: 1610000, montantPaye: 0, statutPaiement: 'non_paye', dateCreation: '2024-06-10', dateEcheance: '2024-07-10' },
-  { id: 'fac4', numero: 'FAC-2024-004', commandeId: 'cmd4', numeroCommande: 'CMD-2024-004', clientId: 'cli1', nomClient: 'Rakoto Jean', montantTotal: 285000, montantPaye: 285000, statutPaiement: 'paye', dateCreation: '2024-06-15', dateEcheance: '2024-07-15' },
-  { id: 'fac5', numero: 'FAC-2024-005', commandeId: 'cmd5', numeroCommande: 'CMD-2024-005', clientId: 'cli6', nomClient: 'Madagascar Export SA', montantTotal: 14600000, montantPaye: 7300000, statutPaiement: 'partiel', dateCreation: '2024-07-01', dateEcheance: '2024-08-01' },
-  { id: 'fac6', numero: 'FAC-2024-006', commandeId: 'cmd6', numeroCommande: 'CMD-2024-006', clientId: 'cli7', nomClient: 'Ravelomanana Voahangy', montantTotal: 690000, montantPaye: 0, statutPaiement: 'non_paye', dateCreation: '2024-07-10', dateEcheance: '2024-08-10' },
-  { id: 'fac7', numero: 'FAC-2024-007', commandeId: 'cmd7', numeroCommande: 'CMD-2024-007', clientId: 'cli8', nomClient: 'Ratsirarson Bako', montantTotal: 9390000, montantPaye: 9390000, statutPaiement: 'paye', dateCreation: '2024-07-15', dateEcheance: '2024-08-15' },
-  { id: 'fac8', numero: 'FAC-2024-008', commandeId: 'cmd9', numeroCommande: 'CMD-2024-009', clientId: 'cli10', nomClient: 'Betsileo Trading', montantTotal: 4500000, montantPaye: 4500000, statutPaiement: 'paye', dateCreation: '2024-08-01', dateEcheance: '2024-09-01' },
-  { id: 'fac9', numero: 'FAC-2024-009', commandeId: 'cmd10', numeroCommande: 'CMD-2024-010', clientId: 'cli9', nomClient: 'Razafindrabe Noro', montantTotal: 170000, montantPaye: 0, statutPaiement: 'non_paye', dateCreation: '2024-08-15', dateEcheance: '2024-09-15' },
+  { id: 'fac1', num_facture: 'FAC-2024-001', id_commande: 'cmd1', date_facture: '2024-05-10', date_echeance: '2024-06-10', montant_ht: 3225000, montant_tva: 0, montant_ttc: 3225000, statut: 'payee', created_at: '2024-05-10T10:00:00', updated_at: '2024-05-10T10:00:00' },
+  { id: 'fac2', num_facture: 'FAC-2024-002', id_commande: 'cmd2', date_facture: '2024-06-01', date_echeance: '2024-07-01', montant_ht: 4400000, montant_tva: 0, montant_ttc: 4400000, statut: 'partielle', created_at: '2024-06-01T10:00:00', updated_at: '2024-06-15T10:00:00' },
+  { id: 'fac3', num_facture: 'FAC-2024-003', id_commande: 'cmd3', date_facture: '2024-06-10', date_echeance: '2024-07-10', montant_ht: 1610000, montant_tva: 0, montant_ttc: 1610000, statut: 'emise', created_at: '2024-06-10T10:00:00', updated_at: '2024-06-10T10:00:00' },
+  { id: 'fac4', num_facture: 'FAC-2024-004', id_commande: 'cmd4', date_facture: '2024-06-15', date_echeance: '2024-07-15', montant_ht: 285000, montant_tva: 0, montant_ttc: 285000, statut: 'payee', created_at: '2024-06-15T10:00:00', updated_at: '2024-06-15T10:00:00' },
+  { id: 'fac5', num_facture: 'FAC-2024-005', id_commande: 'cmd5', date_facture: '2024-07-01', date_echeance: '2024-08-01', montant_ht: 14600000, montant_tva: 0, montant_ttc: 14600000, statut: 'partielle', created_at: '2024-07-01T10:00:00', updated_at: '2024-07-15T10:00:00' },
+  { id: 'fac6', num_facture: 'FAC-2024-006', id_commande: 'cmd6', date_facture: '2024-07-10', date_echeance: '2024-08-10', montant_ht: 690000, montant_tva: 0, montant_ttc: 690000, statut: 'en_retard', created_at: '2024-07-10T10:00:00', updated_at: '2024-08-11T10:00:00' },
+  { id: 'fac7', num_facture: 'FAC-2024-007', id_commande: 'cmd7', date_facture: '2024-07-15', date_echeance: '2024-08-15', montant_ht: 9390000, montant_tva: 0, montant_ttc: 9390000, statut: 'payee', created_at: '2024-07-15T10:00:00', updated_at: '2024-07-20T10:00:00' },
+  { id: 'fac8', num_facture: 'FAC-2024-008', id_commande: 'cmd9', date_facture: '2024-08-01', date_echeance: '2024-09-01', montant_ht: 4500000, montant_tva: 0, montant_ttc: 4500000, statut: 'payee', created_at: '2024-08-01T10:00:00', updated_at: '2024-08-05T10:00:00' },
+  { id: 'fac9', num_facture: 'FAC-2024-009', id_commande: 'cmd10', date_facture: '2024-08-15', date_echeance: '2024-09-15', montant_ht: 170000, montant_tva: 0, montant_ttc: 170000, statut: 'emise', created_at: '2024-08-15T10:00:00', updated_at: '2024-08-15T10:00:00' },
 ];
 
 // Règlements

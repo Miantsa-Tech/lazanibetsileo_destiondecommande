@@ -1,11 +1,10 @@
 import { Facture, Commande } from '../data/mockData';
-import { formatMontant, formatDate, getStatutPaiementLabel } from './format';
+import { formatMontant, formatDate, getStatutFactureLabel } from './format';
 
 /**
  * Génère et télécharge une facture en PDF
  */
 export function generateInvoicePDF(facture: Facture, commande: Commande | undefined, companyLogo?: string): void {
-  // Créer une fenêtre d'impression avec le contenu formaté
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
     alert('Veuillez autoriser les popups pour télécharger la facture');
@@ -16,7 +15,6 @@ export function generateInvoicePDF(facture: Facture, commande: Commande | undefi
   printWindow.document.write(html);
   printWindow.document.close();
 
-  // Attendre que le contenu soit chargé puis déclencher l'impression/téléchargement
   printWindow.onload = () => {
     setTimeout(() => {
       printWindow.print();
@@ -42,7 +40,7 @@ function generateInvoiceHTML(facture: Facture, commande: Commande | undefined, c
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Facture ${facture.numero}</title>
+  <title>Facture ${facture.num_facture}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -154,9 +152,11 @@ function generateInvoiceHTML(facture: Facture, commande: Commande | undefined, c
       font-size: 11px;
       font-weight: 600;
     }
-    .status-payé { background: #D4EDDA; color: #155724; }
-    .status-partiel { background: #FFF3CD; color: #856404; }
-    .status-non_payé { background: #F8D7DA; color: #721C24; }
+    .status-payee { background: #D4EDDA; color: #155724; }
+    .status-partielle { background: #FFF3CD; color: #856404; }
+    .status-emise { background: #CCE5FF; color: #004085; }
+    .status-en_retard { background: #F8D7DA; color: #721C24; }
+    .status-annulee { background: #E2E3E5; color: #383D41; }
     .footer {
       margin-top: 40px;
       padding-top: 20px;
@@ -185,14 +185,14 @@ function generateInvoiceHTML(facture: Facture, commande: Commande | undefined, c
     </div>
     <div class="invoice-info">
       <div class="invoice-title">FACTURE</div>
-      <div class="invoice-number">${facture.numero}</div>
+      <div class="invoice-number">${facture.num_facture}</div>
       <div style="margin-top: 10px; font-size: 11px; color: #6C757D;">
-        Date: ${formatDate(facture.dateCreation)}<br>
-        Échéance: ${formatDate(facture.dateEcheance)}
+        Date: ${formatDate(facture.date_facture)}<br>
+        Échéance: ${facture.date_echeance ? formatDate(facture.date_echeance) : '-'}
       </div>
       <div style="margin-top: 10px;">
-        <span class="payment-status status-${facture.statutPaiement}">
-          ${getStatutPaiementLabel(facture.statutPaiement)}
+        <span class="payment-status status-${facture.statut}">
+          ${getStatutFactureLabel(facture.statut)}
         </span>
       </div>
     </div>
@@ -200,9 +200,9 @@ function generateInvoiceHTML(facture: Facture, commande: Commande | undefined, c
 
   <div class="client-section">
     <div class="client-label">Facturé à</div>
-    <div class="client-name">${facture.nomClient}</div>
+    <div class="client-name">${commande?.nomClient || 'Client'}</div>
     <div style="font-size: 11px; color: #6C757D; margin-top: 5px;">
-      Commande: ${facture.numeroCommande}
+      Commande: ${commande?.numero || '-'}
     </div>
   </div>
 
@@ -229,29 +229,17 @@ function generateInvoiceHTML(facture: Facture, commande: Commande | undefined, c
 
   <div class="totals">
     <div class="total-row">
-      <span>Sous-total HT</span>
-      <span>${formatMontant(facture.montantTotal)}</span>
+      <span>Montant HT</span>
+      <span>${formatMontant(facture.montant_ht)}</span>
     </div>
     <div class="total-row">
-      <span>TVA (0%)</span>
-      <span>${formatMontant(0)}</span>
+      <span>TVA</span>
+      <span>${formatMontant(facture.montant_tva)}</span>
     </div>
     <div class="total-row final">
       <span>Total TTC</span>
-      <span>${formatMontant(facture.montantTotal)}</span>
+      <span>${formatMontant(facture.montant_ttc)}</span>
     </div>
-    ${facture.montantPaye > 0 ? `
-      <div class="total-row" style="color: #28A745;">
-        <span>Montant payé</span>
-        <span>${formatMontant(facture.montantPaye)}</span>
-      </div>
-    ` : ''}
-    ${facture.montantTotal - facture.montantPaye > 0 ? `
-      <div class="total-row" style="color: #DC3545; font-weight: bold;">
-        <span>Reste à payer</span>
-        <span>${formatMontant(facture.montantTotal - facture.montantPaye)}</span>
-      </div>
-    ` : ''}
   </div>
 
   <div class="footer">
