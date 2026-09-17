@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useToast } from '../components/Toast';
 import { Commande, LigneCommande, Facture } from '../data/mockData';
 import { formatMontant, formatDate, getStatutCommandeLabel, getStatutCommandeClass, generateId } from '../utils/format';
 import { Plus, Search, Eye, Edit2, Trash2, FileText, X, ShoppingCart, ChevronDown } from 'lucide-react';
@@ -7,6 +8,7 @@ import ConfirmModal from '../components/ConfirmModal';
 
 export default function Orders() {
   const { clients, produits, commandes, factures, addCommande, updateCommande, deleteCommande, addFacture } = useApp();
+  const toast = useToast();
   const [search, setSearch] = useState('');
   const [filterStatut, setFilterStatut] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -70,6 +72,7 @@ export default function Orders() {
 
     if (editingCommande) {
       updateCommande({ ...editingCommande, clientId: selectedClientId, nomClient: `${client.nom} ${client.prenom}`, lignes, montantTotal, notes, dateModification: new Date().toISOString().split('T')[0] });
+      toast.success('Commande modifiée', `La commande ${editingCommande.numero} a été modifiée avec succès.`);
     } else {
       const newCmd: Commande = {
         id: generateId(),
@@ -84,12 +87,14 @@ export default function Orders() {
         notes,
       };
       addCommande(newCmd);
+      toast.success('Commande créée', `La commande ${newCmd.numero} a été créée avec succès pour ${client.nom} ${client.prenom}.`);
     }
     setShowModal(false);
   };
 
   const changeStatut = (commande: Commande, newStatut: Commande['statut']) => {
     updateCommande({ ...commande, statut: newStatut, dateModification: new Date().toISOString().split('T')[0] });
+    toast.info('Statut mis à jour', `La commande ${commande.numero} est maintenant "${getStatutCommandeLabel(newStatut)}".`);
   };
 
   const requestDelete = (commande: Commande) => {
@@ -98,7 +103,9 @@ export default function Orders() {
 
   const confirmDeleteAction = () => {
     if (confirmDelete.commande) {
+      const numCommande = confirmDelete.commande.numero;
       deleteCommande(confirmDelete.commande.id);
+      toast.success('Commande supprimée', `La commande ${numCommande} a été supprimée avec succès.`);
     }
     setConfirmDelete({ isOpen: false, commande: null });
   };
@@ -108,7 +115,7 @@ export default function Orders() {
     const factureExistante = factures.find(f => f.id_commande === commande.id);
     
     if (factureExistante) {
-      alert(`Une facture existe déjà pour cette commande : ${factureExistante.num_facture}`);
+      toast.warning('Facture existante', `Une facture existe déjà pour cette commande : ${factureExistante.num_facture}`);
       return;
     }
 
@@ -137,7 +144,7 @@ export default function Orders() {
       dateModification: now.split('T')[0] 
     });
 
-    alert(`Facture ${newFact.num_facture} créée avec succès pour la commande ${commande.numero}`);
+    toast.success('Facture créée', `La facture ${newFact.num_facture} a été créée avec succès pour la commande ${commande.numero}.`);
   };
 
   return (

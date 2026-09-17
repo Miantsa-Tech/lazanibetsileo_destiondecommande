@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useToast } from '../components/Toast';
 import { Client } from '../data/mockData';
 import { formatMontant, formatDate, getTypeClientLabel, getTypeClientClass, generateId } from '../utils/format';
 import { Plus, Search, Filter, Edit2, Trash2, Eye, X, UserPlus } from 'lucide-react';
@@ -7,6 +8,7 @@ import ConfirmModal from '../components/ConfirmModal';
 
 export default function Clients() {
   const { clients, addClient, updateClient, deleteClient } = useApp();
+  const toast = useToast();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -35,8 +37,10 @@ export default function Clients() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const nomComplet = `${form.nom} ${form.prenom}`.trim();
     if (editingClient) {
       updateClient({ ...editingClient, ...form });
+      toast.success('Client modifié', `Le client "${nomComplet}" a été modifié avec succès.`);
     } else {
       addClient({
         id: generateId(),
@@ -45,6 +49,7 @@ export default function Clients() {
         chiffreAffaires: 0,
         actif: true,
       });
+      toast.success('Client ajouté', `Le client "${nomComplet}" a été ajouté avec succès.`);
     }
     setShowModal(false);
   };
@@ -55,7 +60,9 @@ export default function Clients() {
 
   const confirmDeleteAction = () => {
     if (confirmDelete.client) {
+      const nomClient = `${confirmDelete.client.nom} ${confirmDelete.client.prenom}`.trim();
       deleteClient(confirmDelete.client.id);
+      toast.success('Client supprimé', `Le client "${nomClient}" a été supprimé avec succès.`);
     }
     setConfirmDelete({ isOpen: false, client: null });
   };

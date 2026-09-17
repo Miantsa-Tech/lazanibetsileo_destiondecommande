@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useToast } from '../components/Toast';
 import { Produit } from '../data/mockData';
 import { formatMontant, generateId } from '../utils/format';
 import { Plus, Search, Edit2, Trash2, Eye, X, Package, AlertTriangle } from 'lucide-react';
@@ -24,6 +25,7 @@ const PRODUITS_PREDIFINIS = [
 
 export default function Products() {
   const { produits, addProduit, updateProduit, deleteProduit } = useApp();
+  const toast = useToast();
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDetail, setShowDetail] = useState<Produit | null>(null);
@@ -85,11 +87,13 @@ export default function Products() {
     
     if (editingProduit) {
       updateProduit({ ...editingProduit, ...produitData });
+      toast.success('Produit modifié', `Le produit "${produitData.nom}" a été modifié avec succès.`);
     } else {
       addProduit({
         id: generateId(),
         ...produitData,
       });
+      toast.success('Produit ajouté', `Le produit "${produitData.nom}" a été ajouté avec succès.`);
     }
     setShowModal(false);
   };
@@ -100,7 +104,9 @@ export default function Products() {
 
   const confirmDeleteAction = () => {
     if (confirmDelete.produit) {
+      const nomProduit = confirmDelete.produit.nom;
       deleteProduit(confirmDelete.produit.id);
+      toast.success('Produit supprimé', `Le produit "${nomProduit}" a été supprimé avec succès.`);
     }
     setConfirmDelete({ isOpen: false, produit: null });
   };
