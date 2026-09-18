@@ -1,6 +1,6 @@
 import React from 'react';
-import { Bell, X, AlertTriangle, ShoppingCart, CreditCard, Truck, Package, Check } from 'lucide-react';
-import { formatMontant, formatDate } from '../utils/format';
+import { Bell, X, Check } from 'lucide-react';
+import { formatDate } from '../utils/format';
 
 interface Notification {
   id: string;
@@ -18,9 +18,10 @@ interface AllNotificationsModalProps {
   onClose: () => void;
   notifications: Notification[];
   onRemove: (id: string) => void;
+  onMarkAsRead?: (id: string) => void;
 }
 
-export default function AllNotificationsModal({ isOpen, onClose, notifications, onRemove }: AllNotificationsModalProps) {
+export default function AllNotificationsModal({ isOpen, onClose, notifications, onRemove, onMarkAsRead }: AllNotificationsModalProps) {
   if (!isOpen) return null;
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -59,7 +60,8 @@ export default function AllNotificationsModal({ isOpen, onClose, notifications, 
               {notifications.map(notif => (
                 <div
                   key={notif.id}
-                  className={`flex items-start gap-3 p-4 rounded-lg border transition-colors ${
+                  onClick={() => onMarkAsRead && onMarkAsRead(notif.id)}
+                  className={`flex items-start gap-3 p-4 rounded-lg border transition-colors cursor-pointer ${
                     !notif.read
                       ? 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800'
                       : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700'
@@ -72,16 +74,28 @@ export default function AllNotificationsModal({ isOpen, onClose, notifications, 
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm font-semibold text-gray-800 dark:text-slate-100">{notif.title}</p>
+                          <p className={`text-sm ${!notif.read ? 'font-bold' : 'font-semibold'} text-gray-800 dark:text-slate-100`}>
+                            {notif.title}
+                          </p>
                           {!notif.read && (
                             <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                           )}
                         </div>
                         <p className="text-sm text-gray-600 dark:text-slate-300">{notif.message}</p>
-                        <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">{formatDate(notif.date)}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-xs text-gray-400 dark:text-slate-500">{formatDate(notif.date)}</p>
+                          {notif.read && (
+                            <span className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                              <Check className="w-3 h-3" /> Lu
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <button
-                        onClick={() => onRemove(notif.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemove(notif.id);
+                        }}
                         className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-400 dark:text-slate-500 flex-shrink-0 transition-colors"
                         title="Supprimer"
                       >

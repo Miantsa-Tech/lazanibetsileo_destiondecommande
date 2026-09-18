@@ -19,6 +19,7 @@ export default function NotificationsDropdown() {
   const { produits, commandes, factures, livraisons } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   const [showAllNotifications, setShowAllNotifications] = useState(false);
+  const [readNotificationIds, setReadNotificationIds] = useState<Set<string>>(new Set());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Générer les notifications à partir des données réelles
@@ -33,7 +34,7 @@ export default function NotificationsDropdown() {
         title: 'Stock faible',
         message: `${p.nom} - Plus que ${p.stock} unité(s) en stock`,
         date: new Date().toISOString(),
-        read: false,
+        read: readNotificationIds.has(`stock-${p.id}`),
         icon: <Package className="w-4 h-4" />,
         color: 'text-amber-600 bg-amber-100',
       });
@@ -47,7 +48,7 @@ export default function NotificationsDropdown() {
         title: 'Nouvelle commande',
         message: `${c.nomClient} - ${formatMontant(c.montantTotal)}`,
         date: c.dateCreation,
-        read: false,
+        read: readNotificationIds.has(`cmd-${c.id}`),
         icon: <ShoppingCart className="w-4 h-4" />,
         color: 'text-blue-600 bg-blue-100',
       });
@@ -63,7 +64,7 @@ export default function NotificationsDropdown() {
         title: 'Facture impayée',
         message: `${clientNom} - ${formatMontant(f.montant_ttc)}`,
         date: f.date_facture,
-        read: false,
+        read: readNotificationIds.has(`fac-${f.id}`),
         icon: <CreditCard className="w-4 h-4" />,
         color: 'text-red-600 bg-red-100',
       });
@@ -77,7 +78,7 @@ export default function NotificationsDropdown() {
         title: 'Livraison en attente',
         message: `${l.nomClient} - ${l.adresseLivraison}`,
         date: l.datePlanifiee,
-        read: false,
+        read: readNotificationIds.has(`liv-${l.id}`),
         icon: <Truck className="w-4 h-4" />,
         color: 'text-purple-600 bg-purple-100',
       });
@@ -87,18 +88,33 @@ export default function NotificationsDropdown() {
   };
 
   const [notifications, setNotifications] = useState<Notification[]>(generateNotifications());
+  
+  // Compteur dynamique des notifications non lues
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  // Régénérer les notifications quand les données changent
+  useEffect(() => {
+    setNotifications(generateNotifications());
+  }, [produits, commandes, factures, livraisons, readNotificationIds]);
+
   const markAsRead = (id: string) => {
+    setReadNotificationIds(prev => new Set([...prev, id]));
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   };
 
   const markAllAsRead = () => {
+    const allIds = new Set(notifications.map(n => n.id));
+    setReadNotificationIds(prev => new Set([...prev, ...allIds]));
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
   const removeNotification = (id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  // Marquer une notification comme lue au clic
+  const handleNotificationClick = (id: string) => {
+    markAsRead(id);
   };
 
   return (
@@ -145,19 +161,30 @@ export default function NotificationsDropdown() {
               notifications.map(notif => (
                 <div
                   key={notif.id}
-                  className={`flex items-start gap-3 px-4 py-3 border-b border-gray-50 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors ${!notif.read ? 'bg-green-50/30 dark:bg-emerald-900/10' : ''}`}
+                  onClick={() => handleNotificationClick(notif.id)}
+                  className={`flex items-start gap-3 px-4 py-3 border-b border-gray-50 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer ${!notif.read ? 'bg-green-50/30 dark:bg-emerald-900/10' : ''}`}
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${notif.color}`}>
                     {notif.icon}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="text-sm font-medium text-gray-800 dark:text-slate-100">{notif.title}</p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className={`text-sm ${!notif.read ? 'font-semibold' : 'font-medium'} text-gray-800 dark:text-slate-100`}>
+                            {notif.title}
+                          </p>
+                          {!notif.read && (
+                            <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></span>
+                          )}
+                        </div>
                         <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 line-clamp-2">{notif.message}</p>
                       </div>
                       <button
-                        onClick={() => removeNotification(notif.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeNotification(notif.id);
+                        }}
                         className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-400 dark:text-slate-500 flex-shrink-0"
                       >
                         <X className="w-3 h-3" />
@@ -165,13 +192,10 @@ export default function NotificationsDropdown() {
                     </div>
                     <div className="flex items-center gap-2 mt-1.5">
                       <span className="text-[10px] text-gray-400 dark:text-slate-500">{formatDate(notif.date)}</span>
-                      {!notif.read && (
-                        <button
-                          onClick={() => markAsRead(notif.id)}
-                          className="text-[10px] text-[#2D5016] dark:text-emerald-400 hover:underline font-medium"
-                        >
-                          Marquer lu
-                        </button>
+                      {notif.read && (
+                        <span className="text-[10px] text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Lu
+                        </span>
                       )}
                     </div>
                   </div>
@@ -203,6 +227,7 @@ export default function NotificationsDropdown() {
         onClose={() => setShowAllNotifications(false)}
         notifications={notifications}
         onRemove={removeNotification}
+        onMarkAsRead={markAsRead}
       />
     </div>
   );
