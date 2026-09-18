@@ -74,6 +74,7 @@ export default function Orders() {
       updateCommande({ ...editingCommande, clientId: selectedClientId, nomClient: `${client.nom} ${client.prenom}`, lignes, montantTotal, notes, dateModification: new Date().toISOString().split('T')[0] });
       toast.success('Commande modifiée', `La commande ${editingCommande.numero} a été modifiée avec succès.`);
     } else {
+      const now = new Date().toISOString();
       const newCmd: Commande = {
         id: generateId(),
         numero: `CMD-2024-${String(commandes.length + 1).padStart(3, '0')}`,
@@ -82,12 +83,39 @@ export default function Orders() {
         lignes,
         montantTotal,
         statut: 'en_cours',
-        dateCreation: new Date().toISOString().split('T')[0],
-        dateModification: new Date().toISOString().split('T')[0],
+        dateCreation: now.split('T')[0],
+        dateModification: now.split('T')[0],
         notes,
       };
+      
+      // Créer la commande
       addCommande(newCmd);
-      toast.success('Commande créée', `La commande ${newCmd.numero} a été créée avec succès pour ${client.nom} ${client.prenom}.`);
+      
+      // Créer automatiquement une facture liée à la commande
+      const newFacture: Facture = {
+        id: generateId(),
+        num_facture: `FAC-${new Date().getFullYear()}-${String(factures.length + 1).padStart(3, '0')}`,
+        id_commande: newCmd.id,
+        date_facture: now.split('T')[0],
+        date_echeance: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        montant_ht: newCmd.montantTotal,
+        montant_tva: 0,
+        montant_ttc: newCmd.montantTotal,
+        statut: 'emise',
+        created_at: now,
+        updated_at: now,
+      };
+      
+      addFacture(newFacture);
+      
+      // Mettre à jour le statut de la commande à "validée"
+      updateCommande({ 
+        ...newCmd, 
+        statut: 'validee', 
+        dateModification: now.split('T')[0] 
+      });
+      
+      toast.success('Commande et facture créées', `La commande ${newCmd.numero} et la facture ${newFacture.num_facture} ont été créées avec succès pour ${client.nom} ${client.prenom}.`);
     }
     setShowModal(false);
   };
