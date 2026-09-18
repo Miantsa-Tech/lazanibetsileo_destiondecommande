@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Bell, X, AlertTriangle, ShoppingCart, CreditCard, Truck, Package, Check } from 'lucide-react';
 import { formatMontant, formatDate } from '../utils/format';
+import AllNotificationsModal from './AllNotificationsModal';
 
 interface Notification {
   id: string;
@@ -17,18 +18,8 @@ interface Notification {
 export default function NotificationsDropdown() {
   const { produits, commandes, factures, livraisons } = useApp();
   const [isOpen, setIsOpen] = useState(false);
+  const [showAllNotifications, setShowAllNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Fermer le dropdown en cliquant à l'extérieur
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   // Générer les notifications à partir des données réelles
   const generateNotifications = (): Notification[] => {
@@ -192,13 +183,27 @@ export default function NotificationsDropdown() {
           {/* Footer */}
           {notifications.length > 0 && (
             <div className="px-4 py-2.5 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 text-center">
-              <button className="text-xs text-[#2D5016] dark:text-emerald-400 hover:text-[#3D6B1E] dark:hover:text-emerald-300 font-medium">
+              <button 
+                onClick={() => {
+                  setIsOpen(false);
+                  setShowAllNotifications(true);
+                }}
+                className="text-xs text-[#2D5016] dark:text-emerald-400 hover:text-[#3D6B1E] dark:hover:text-emerald-300 font-medium"
+              >
                 Voir toutes les notifications
               </button>
             </div>
           )}
         </div>
       )}
+
+      {/* Modal pour voir toutes les notifications */}
+      <AllNotificationsModal
+        isOpen={showAllNotifications}
+        onClose={() => setShowAllNotifications(false)}
+        notifications={notifications}
+        onRemove={removeNotification}
+      />
     </div>
   );
 }
