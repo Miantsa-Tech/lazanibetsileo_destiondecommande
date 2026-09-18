@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../components/Toast';
 import { Commande, LigneCommande, Facture } from '../data/mockData';
@@ -15,10 +15,25 @@ export default function Orders() {
   const [showDetail, setShowDetail] = useState<Commande | null>(null);
   const [editingCommande, setEditingCommande] = useState<Commande | null>(null);
   const [selectedClientId, setSelectedClientId] = useState('');
+  const [clientSearch, setClientSearch] = useState('');
+  const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [statutCommande, setStatutCommande] = useState<Commande['statut']>('en_cours');
   const [lignes, setLignes] = useState<LigneCommande[]>([]);
   const [notes, setNotes] = useState('');
   const [showProduitSelect, setShowProduitSelect] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; commande: Commande | null }>({ isOpen: false, commande: null });
+  const clientSearchRef = useRef<HTMLDivElement>(null);
+
+  // Fermer le dropdown client quand on clique en dehors
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (clientSearchRef.current && !clientSearchRef.current.contains(event.target as Node)) {
+        setShowClientDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const filteredCommandes = commandes.filter(c => {
     const matchSearch = `${c.numero} ${c.nomClient}`.toLowerCase().includes(search.toLowerCase());
@@ -28,6 +43,8 @@ export default function Orders() {
 
   const openCreate = () => {
     setSelectedClientId('');
+    setClientSearch('');
+    setStatutCommande('en_cours');
     setLignes([]);
     setNotes('');
     setEditingCommande(null);
@@ -36,10 +53,25 @@ export default function Orders() {
 
   const openEdit = (commande: Commande) => {
     setSelectedClientId(commande.clientId);
+    const client = clients.find(c => c.id === commande.clientId);
+    setClientSearch(client ? `${client.nom} ${client.prenom}` : '');
+    setStatutCommande(commande.statut);
     setLignes([...commande.lignes]);
     setNotes(commande.notes);
     setEditingCommande(commande);
     setShowModal(true);
+  };
+
+  const filteredClients = clients.filter(c => {
+    const searchTerm = clientSearch.toLowerCase();
+    return `${c.nom} ${c.prenom} ${c.email} ${c.telephone}`.toLowerCase().includes(searchTerm);
+  });
+
+  const selectClient = (clientId: string) => {
+    setSelectedClientId(clientId);
+    const client = clients.find(c => c.id === clientId);
+    setClientSearch(client ? `${client.nom} ${client.prenom}` : '');
+    setShowClientDropdown(false);
   };
 
   const addLigne = (produitId: string) => {
@@ -54,11 +86,14 @@ export default function Orders() {
     setShowProduitSelect(false);
   };
 
-  const updateQuantite = (index: number, qte: number) => {
-    if (qte <= 0) {
+  const updateQuantite = (index: number, qte: number | string) => {
+    const qteNum = typeof qte === 'string' ? parseFloat(qte) : qte;
+    
+    // Si le champ est vide ou la valeur est 0 ou moins, supprimer la ligne
+    if (qte === '' || isNaN(qteNum) || qteNum <= 0) {
       setLignes(lignes.filter((_, i) => i !== index));
     } else {
-      setLignes(lignes.map((l, i) => i === index ? { ...l, quantite: qte, total: qte * l.prixUnitaire } : l));
+      setLignes(lignes.map((l, i) => i === index ? { ...l, quantite: qteNum, total: qteNum * l.prixUnitaire } : l));
     }
   };
 
@@ -82,7 +117,7 @@ export default function Orders() {
         nomClient: `${client.nom} ${client.prenom}`,
         lignes,
         montantTotal,
-        statut: 'en_cours',
+        statut: statutCommande,
         dateCreation: now.split('T')[0],
         dateModification: now.split('T')[0],
         notes,
@@ -288,14 +323,63 @@ export default function Orders() {
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-5 space-y-5">
-              {/* Client selection */}
-              <div>
+              {/* Client search */}
+              <div className="relative" ref={clientSearchRef}>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Client *</label>
-                <select value={selectedClientId} onChange={(e) => setSelectedClientId(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none" required>
-                  <option value="">Sélectionner un client</option>
-                  {clients.map(c => (
-                    <option key={c.id} value={c.id}>{c.nom} {c.prenom} ({c.type})</option>
-                  ))}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={clientSearch}
+                    onChange={(e) => {
+                      setClientSearch(e.target.value);
+                      setShowClientDropdown(true);
+                      if (!e.target.value) {
+                        setSelectedClientId('');
+                      }
+                    }}
+                    onFocus={() => setShowClientDropdown(true)}
+                    placeholder="Rechercher un client (nom, email, téléphone...)"
+                    className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none"
+                    required
+                  />
+                </div>
+                
+                {/* Client dropdown */}
+                {showClientDropdown && clientSearch && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {filteredClients.length > 0 ? (
+                      filteredClients.map(c => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => selectClient(c.id)}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-green-50 border-b border-gray-50 last:border-0"
+                        >
+                          <div className="font-medium text-gray-800">{c.nom} {c.prenom}</div>
+                          <div className="text-xs text-gray-500">{c.email} • {c.telephone}</div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-3 py-2 text-sm text-gray-500 italic">Aucun client trouvé</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Statut selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Statut *</label>
+                <select 
+                  value={statutCommande} 
+                  onChange={(e) => setStatutCommande(e.target.value as Commande['statut'])} 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#2D5016] outline-none"
+                  required
+                >
+                  <option value="en_cours">En cours</option>
+                  <option value="validee">Validée</option>
+                  <option value="livree">Livrée</option>
+                  <option value="annulee">Annulée</option>
                 </select>
               </div>
 
